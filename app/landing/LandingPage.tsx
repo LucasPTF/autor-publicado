@@ -122,7 +122,7 @@ export function LandingPage() {
       </div></section>
 
       <section className="section mentor" id="quem-conduz"><div className="shell mentor-grid">
-        <div className="mentor-photo"><img src="/jose-carlos.png" alt="José Carlos" /><div className="mentor-badge"><strong>José Carlos</strong><span>Treinos Lucrativos em 24h</span><small>Mais de 36 anos de experiência</small></div></div>
+        <div className="mentor-photo"><img src="/jose-carlos-apresentacao.png" alt="José Carlos, criador do Treinos Lucrativos em 24h" /><div className="mentor-badge"><strong>José Carlos</strong><span>Treinos Lucrativos em 24h</span><small>Mais de 36 anos de experiência</small></div></div>
         <div className="mentor-copy"><Eyebrow>Quem conduz</Eyebrow><h2>Apresentamos<br /><em>José Carlos</em></h2><p>Antes de ensinar Personal Trainers a vender programas, José Carlos também viveu preso à agenda.</p><p>Recém-casado e com um filho a caminho, trabalhava em várias academias. Acordava às 4h30, dormia às 23h e, mesmo trabalhando o dia inteiro, o dinheiro mal cobria as contas.</p><p>A virada começou quando percebeu que o cliente não pagava apenas pela hora ao seu lado. Pagava pelo resultado que ele sabia entregar.</p><p>Hoje, José Carlos soma mais de 36 anos de experiência e declara ter certificado 1.348 Personal Trainers, além de ministrar milhares de cursos e palestras.</p><div className="mentor-stats"><span><b>36+</b> anos no mercado</span><span><b>1.348</b> Personal Trainers certificados</span><span><b>1</b> missão: tirar profissionais da dependência da agenda</span></div></div>
       </div></section>
 
