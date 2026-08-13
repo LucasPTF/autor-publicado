@@ -1,42 +1,49 @@
 export const discoveries = [
-  ["01", "Renda frágil", "Por que atender mais alunos não elimina a fragilidade da sua renda."],
-  ["02", "Programa apresentável", "Como transformar o que você já sabe em um programa com forma, nome, apresentação e preço."],
-  ["03", "Personalização rápida", "Como personalizar uma oferta sem passar dias criando tudo do zero."],
-  ["04", "Valor percebido", "O que precisa aparecer para o aluno perceber valor antes de perguntar o preço."],
+  ["01", "Da ideia à estrutura", "Transforme uma ideia ainda confusa em uma direção clara, com tema, promessa e capítulos organizados."],
+  ["02", "Capítulos sem bloqueio", "Organize o conteúdo sem depender de inspiração ou passar meses diante de uma página em branco."],
+  ["03", "Livro pronto para avançar", "Revise, crie a capa, faça a diagramação e prepare o arquivo para a publicação digital."],
+  ["04", "Sonho tratado como projeto", "Pare de adiar e siga uma sequência prática, com começo, meio e próximo passo definido."],
 ];
 
-export const routeSteps = [
-  ["01", "Escolher", "Selecionar um programa adequado ao objetivo do cliente."],
-  ["02", "Personalizar", "Adaptar a oferta e sua apresentação sem começar tudo do zero."],
-  ["03", "Apresentar", "Mostrar valor antes de deixar a conversa limitada ao preço."],
-  ["04", "Vender", "Começar a divulgar para sua base e nas redes sociais."],
+export const transformations = [
+  ["Antes", "Uma ideia solta, guardada há anos.", "Depois", "Um livro estruturado e pronto para avançar."],
+  ["Antes", "Dúvidas, pesquisas e um começo sem fim.", "Depois", "Uma sequência clara para seguir."],
+  ["Antes", "Conhecimento parado e invisível.", "Depois", "Conhecimento transformado em autoridade."],
 ];
 
-export const comparisons = [
-  ["Hoje", "Cada cancelamento tira dinheiro do seu bolso."],
-  ["Depois", "Você começa a construir uma oferta que não depende somente de horários ocupados."],
-  ["Hoje", "Seu conhecimento só gera renda quando você está presente."],
-  ["Depois", "Ele passa a ter forma, nome, apresentação e preço."],
-  ["Hoje", "Mais alunos também significam mais horários ocupados."],
-  ["Depois", "Você começa uma nova oferta sem abandonar seus atendimentos presenciais."],
+export const methodSteps = [
+  ["01", "Ideia", "Defina o que seu livro precisa dizer e para quem ele será escrito."],
+  ["02", "Estrutura", "Organize a promessa, os capítulos e a sequência do conteúdo."],
+  ["03", "Conteúdo", "Desenvolva o manuscrito com direção, sem esperar a inspiração perfeita."],
+  ["04", "Revisão", "Refine o texto e prepare a versão que seguirá para a publicação."],
+  ["05", "Capa", "Crie uma apresentação coerente com o tema e o posicionamento da obra."],
+  ["06", "Diagramação", "Prepare o miolo para uma leitura clara em formato digital."],
+  ["07", "Publicação", "Encaminhe o livro para a plataforma e conclua os passos possíveis na imersão."],
 ];
 
-export const deliverables = [
-  ["Workshop ao vivo", "Encontro online para estruturar uma nova oferta com aplicação prática."],
-  ["Rota dos Quatro Passos", "Escolher, personalizar, apresentar e vender."],
-  ["Grupo oficial de WhatsApp", "Acesso ao grupo da turma para avisos e orientações."],
-  ["Replay", "Acesso à gravação por dois ou três dias, conforme configuração final."],
-  ["Modelo de contrato", "Uma base para formalizar sua prestação de serviço com mais organização."],
-  ["Manual de Vendas + ficha de anamnese", "Materiais para apresentar seus programas e organizar informações do aluno."],
+export const bonuses = [
+  ["Bônus 01", "Template para estrutura do livro", "Organize capítulos e ideias sem começar do zero."],
+  ["Bônus 02", "Checklist completo de publicação", "Acompanhe cada etapa do processo sem se perder."],
+  ["Bônus 03", "Checklist para plataformas digitais", "Saiba o que conferir quando chegar a hora de publicar."],
+];
+
+export const offerItems = [
+  "Workshop ao vivo pelo Zoom",
+  "Material de apoio",
+  "Templates e checklists",
+  "Grupo oficial no WhatsApp",
+  "Replay disponível por 72 horas",
+  "Suporte durante o workshop",
 ];
 
 export const faqs = [
-  ["Preciso abandonar meus atendimentos presenciais?", "Não. O workshop ensina uma fonte complementar de renda."],
-  ["Preciso ter muitos seguidores?", "Não. Você pode começar apresentando a oferta para pessoas que já conhecem seu trabalho."],
-  ["Vou receber os 68 programas?", "Essa entrega precisa ser confirmada antes da publicação. A oferta atualmente validada inclui o workshop, os três bônus, o grupo e o replay."],
-  ["Nunca vendi um programa. Vou acompanhar?", "Sim. A aula começa pela escolha e personalização antes de entrar na divulgação."],
-  ["A venda por R$297 a R$597 é garantida?", "Não. Essa é uma referência de posicionamento e precificação. O resultado depende da oferta, do público, da aplicação e da divulgação."],
-  ["O workshop é ao vivo?", "Sim. O Workshop Treinos Lucrativos em 24h é um encontro online e ao vivo."],
-  ["Por quanto tempo terei acesso ao replay?", "O replay está previsto por dois ou três dias, conforme a configuração final da oferta."],
-  ["Quais bônus estão incluídos?", "Modelo de contrato, Manual de Vendas do Personal Trainer e ficha de anamnese."],
+  ["Preciso já ter escrito alguma página?", "Não. O workshop foi criado tanto para quem está começando quanto para quem já tentou escrever e ficou travado."],
+  ["Preciso escrever muito bem?", "Não. Você será conduzido passo a passo para organizar e desenvolver sua ideia com mais clareza."],
+  ["Funciona para qualquer área?", "Sim, desde que você tenha conhecimento, experiência ou uma história que possa ser transformada em livro."],
+  ["Vou conseguir publicar durante o workshop?", "O objetivo é conduzir você até a publicação ou o encaminhamento do livro digital durante a imersão, respeitando o ritmo do participante e as etapas de aprovação da plataforma."],
+  ["Vou ter acesso depois?", "Sim. O replay ficará disponível por 72 horas após a imersão."],
+  ["Como recebo os acessos?", "Após a confirmação da inscrição, você recebe as orientações, o acesso ao grupo de WhatsApp, o link do Zoom e os materiais de apoio."],
 ];
+
+export const whatsappUrl =
+  "https://wa.me/5511972009539?text=Ol%C3%A1%21%20Quero%20garantir%20minha%20vaga%20no%20Workshop%20Autor%20Publicado%20em%201%20Dia.";

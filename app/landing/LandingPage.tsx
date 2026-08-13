@@ -1,152 +1,313 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { comparisons, deliverables, discoveries, faqs, routeSteps } from "./content";
+import {
+  bonuses,
+  discoveries,
+  faqs,
+  methodSteps,
+  offerItems,
+  transformations,
+  whatsappUrl,
+} from "./content";
 
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <p className="eyebrow"><span aria-hidden="true" />{children}</p>;
+function Eyebrow({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
+  return <p className={`eyebrow${light ? " light" : ""}`}><span aria-hidden="true">✦</span>{children}</p>;
 }
 
-function Cta({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <a className={`cta ${className}`} href="#oferta">{children}<span aria-hidden="true">→</span></a>;
+function Cta({ children, compact = false }: { children: React.ReactNode; compact?: boolean }) {
+  return (
+    <a className={`cta${compact ? " compact" : ""}`} href={whatsappUrl} target="_blank" rel="noreferrer">
+      <span>{children}</span><b aria-hidden="true">↗</b>
+    </a>
+  );
 }
 
 export function LandingPage() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showMobileCta, setShowMobileCta] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setShowMobileCta(window.scrollY > window.innerHeight * 0.75);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const handleScroll = () => setShowMobileCta(window.scrollY > window.innerHeight * 0.8);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
 
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="#inicio" aria-label="Treinos Lucrativos em 24h — início">
-          <span className="brand-mark">TL</span>
-          <span>Treinos Lucrativos<small>em 24h</small></span>
+        <a className="brand" href="#inicio" aria-label="Autor Publicado em 1 Dia — início">
+          <span className="brand-monogram">AP</span>
+          <span>Autor Publicado<small>em 1 dia</small></span>
         </a>
-        <nav className="desktop-nav" aria-label="Navegação principal">
-          <a href="#descobrir">O que você vai descobrir</a><a href="#metodo">O método</a><a href="#quem-conduz">Quem conduz</a><a href="#faq">FAQ</a>
+        <nav aria-label="Navegação principal">
+          <a href="#metodo">O método</a>
+          <a href="#alessandro">Quem conduz</a>
+          <a href="#faq">Dúvidas</a>
         </nav>
-        <Cta className="header-cta">Garantir minha vaga</Cta>
-        <button className="menu-button" type="button" aria-label="Abrir menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><span /><span /></button>
+        <Cta compact>Quero tirar meu livro do papel</Cta>
       </header>
 
-      <div className={`mobile-menu ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
-        <button type="button" className="menu-close" aria-label="Fechar menu" onClick={() => setMenuOpen(false)}>×</button>
-        <nav aria-label="Navegação móvel">
-          <a href="#descobrir" onClick={() => setMenuOpen(false)}>O que você vai descobrir</a>
-          <a href="#metodo" onClick={() => setMenuOpen(false)}>O método</a>
-          <a href="#oferta" onClick={() => setMenuOpen(false)}>Oferta</a>
-          <a href="#quem-conduz" onClick={() => setMenuOpen(false)}>Quem conduz</a>
-          <a href="#faq" onClick={() => setMenuOpen(false)}>Perguntas frequentes</a>
-        </nav>
-        <Cta>Garantir minha vaga</Cta>
-      </div>
-
       <section className="hero" id="inicio">
-        <div className="hero-glow" aria-hidden="true" />
+        <div className="hero-lines" aria-hidden="true" />
         <div className="shell hero-grid">
           <div className="hero-copy">
-            <p className="overline">Treinos lucrativos em 24h</p>
-            <h1>Você trabalha o dia inteiro.<br /><em>Mas um cancelamento ainda tira dinheiro do seu bolso.</em></h1>
-            <div className="hero-text">
-              <p>Você estudou, ganhou experiência e correu atrás de alunos.</p>
-              <p>O erro não foi falta de esforço.</p><p>Foi aprender a vender apenas sua presença.</p>
-              <p>Neste workshop, você começa a organizar uma nova oferta com mais controle e menos dependência da agenda.</p>
+            <p className="hero-kicker">Workshop ao vivo • pelo Zoom</p>
+            <h1>Seu livro não precisa continuar <em>preso na sua cabeça.</em></h1>
+            <p className="hero-subtitle">Existe um caminho para tirá-lo do papel.</p>
+            <p className="hero-description">Você já pesquisou, tentou começar e talvez até tenha escrito algumas páginas. O que faltou não foi talento — foi uma ordem clara para avançar até sentir que finalmente sabe o que fazer.</p>
+            <Cta>Quero tirar meu livro do papel</Cta>
+            <div className="hero-trust">
+              <span><b>1 dia</b> de imersão prática</span>
+              <span><b>Ao vivo</b> com orientação</span>
+              <span><b>7 dias</b> de garantia</span>
             </div>
-            <Cta>Quero sair da dependência da agenda</Cta>
-            <div className="hero-tags"><span>Workshop ao vivo</span><i /><span>Oferta em até 24 horas</span><i /><span>Para Personal Trainers</span></div>
           </div>
-          <div className="hero-visual" aria-label="Rota dos Quatro Passos">
-            <div className="visual-orbit orbit-one" /><div className="visual-orbit orbit-two" />
-            <div className="program-card">
-              <div className="program-card-head"><div className="mini-brand"><span>TL</span><b>Treinos Lucrativos em 24h</b></div><small>Workshop ao vivo</small></div>
-              <p>Rota dos Quatro Passos</p>
-              <ol>{routeSteps.map(([number, title]) => <li key={number}><span>{number}</span>{title}<b aria-hidden="true">›</b></li>)}</ol>
-              <div className="card-signature">Conhecimento técnico<br /><strong>transformado em oferta</strong></div>
+
+          <div className="hero-photo-wrap">
+            <div className="hero-photo-frame">
+              <img src="/alessandro-hero.jpg" alt="Alessandro Moreira, professor e escritor" />
+              <div className="hero-photo-label"><strong>Alessandro Moreira</strong><span>Professor • escritor • mentor</span></div>
             </div>
-            <div className="floating-note note-top"><b>24h</b><span>para estruturar<br />sua nova oferta</span></div>
-            <div className="floating-note note-bottom"><b>4</b><span>passos simples<br />e aplicáveis</span></div>
+            <div className="book-card">
+              <span>Método</span><strong>Livro<br />Pronto</strong><small>em 1 dia</small>
+            </div>
+            <p className="margin-note">Conhecimento<br />transformado<br />em legado.</p>
           </div>
         </div>
       </section>
 
-      <section className="offer-strip"><div className="shell"><p><strong>1º lote por R$29,90</strong> · Workshop ao vivo para transformar seu conhecimento técnico em uma oferta que o aluno consiga entender e valorizar.</p><Cta>Garantir minha vaga</Cta></div></section>
-
-      <section className="section before-after"><div className="shell">
-        <Eyebrow>Antes e depois</Eyebrow>
-        <h2>Hoje, cada cancelamento abre um buraco no seu mês.<br /><em>Depois, você começa a construir uma oferta além da agenda.</em></h2>
-        <div className="comparison-grid">{comparisons.map(([label, text], index) => <article key={text} className={index % 2 ? "after" : ""}><span>{label}</span><p>{text}</p></article>)}</div>
-      </div></section>
-
-      <section className="section light-section" id="descobrir"><div className="shell">
-        <Eyebrow>O que você vai descobrir</Eyebrow><h2>Como transformar conhecimento técnico em uma oferta apresentável</h2>
-        <div className="discovery-grid">{discoveries.map(([number, title, text]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
-      </div></section>
-
-      <section className="section method" id="metodo">
-        <div className="shell method-intro">
-          <div><Eyebrow>Diferencial único</Eyebrow><h2>A Rota dos<br /><em>Quatro Passos</em></h2></div>
-          <div className="method-copy"><p>Sua formação ensinou você a prescrever treinos. Não a vender programas.</p><p>Mais alunos também significam mais horários ocupados. Seu conhecimento já existe. O que falta é organizá-lo — sem abandonar o presencial.</p><p>Você não recebe apenas ideias soltas. Aprende uma sequência prática para transformar conhecimento técnico em uma oferta que o cliente consegue entender e valorizar.</p></div>
+      <section className="authority-strip" aria-label="Autoridade de Alessandro Moreira">
+        <div className="shell">
+          <p><strong>16+</strong><span>anos desenvolvendo pessoas e negócios</span></p>
+          <i />
+          <p><strong>10 mil+</strong><span>alunos impactados ao longo da carreira</span></p>
+          <i />
+          <p><strong>1 método</strong><span>para aprender enquanto executa</span></p>
         </div>
-        <div className="shell steps-grid">{routeSteps.map(([number, title, text]) => <article key={number}><span>Passo {number}</span><div className="step-number">{number}</div><h3>{title}</h3><p>{text}</p></article>)}</div>
-        <div className="shell route-line"><span>Oferta</span><i>→</i><span>Apresentação</span><i>→</i><span>Venda com clareza</span></div>
       </section>
 
-      <section className="section audience"><div className="shell">
-        <Eyebrow>Para quem é</Eyebrow><h2>Para Personal Trainers que querem parar de depender apenas da agenda</h2>
-        <div className="audience-grid">
-          <article className="positive"><h3>É para você se…</h3><ul><li>Trabalha muito e ainda sente insegurança financeira.</li><li>Sabe entregar resultado, mas não sabe transformar isso em um programa.</li><li>Quer começar uma nova oferta sem abandonar seus alunos presenciais.</li></ul></article>
-          <article><h3>Talvez não seja se…</h3><ul><li>Você procura dinheiro sem aplicar o que aprender.</li><li>Não está disposto a apresentar e divulgar sua oferta.</li><li>Espera uma garantia de venda sem considerar público, aplicação e divulgação.</li></ul></article>
+      <section className="section transformation">
+        <div className="shell">
+          <Eyebrow>A transformação</Eyebrow>
+          <div className="section-heading split-heading">
+            <h2>Do projeto adiado<br />ao livro que <em>finalmente avança.</em></h2>
+            <p>Você não precisa de mais uma lista de dicas. Precisa enxergar a sequência e executar cada etapa.</p>
+          </div>
+          <div className="transformation-list">
+            {transformations.map(([beforeLabel, before, afterLabel, after], index) => (
+              <article key={before}>
+                <span className="transformation-index">0{index + 1}</span>
+                <div><small>{beforeLabel}</small><p>{before}</p></div>
+                <b aria-hidden="true">→</b>
+                <div className="after"><small>{afterLabel}</small><p>{after}</p></div>
+              </article>
+            ))}
+          </div>
         </div>
-      </div></section>
+      </section>
 
-      <section className="section pricing" id="oferta"><div className="shell">
-        <div className="pricing-heading"><div><Eyebrow>Oferta · 1º lote aberto</Eyebrow><h2>Entre agora por <em>R$29,90</em></h2></div><p>A mudança de lote acontece por data ou número real de vagas.</p></div>
-        <div className="price-grid">
-          <article className="price-card featured"><span>1º lote · sua vaga</span><h3>1º Lote</h3><strong>R$29,90</strong><h4>Workshop ao vivo + bônus</h4><p>O menor valor disponível para começar a estruturar uma oferta além da agenda.</p><Cta>Quero participar do workshop</Cta></article>
-          <article className="price-card"><span>Próximo valor</span><h3>2º Lote</h3><strong>R$89,70</strong><h4>Quando o 1º lote fechar</h4><p>O mesmo workshop por um valor mais alto.</p></article>
-          <article className="price-card"><span>Último valor</span><h3>3º Lote</h3><strong>R$179,40</strong><h4>Último valor de entrada</h4><p>A diferença está no momento da sua decisão.</p></article>
-        </div><p className="pricing-note">Workshop ao vivo · Rota dos Quatro Passos · bônus inclusos</p>
-      </div></section>
+      <section className="section discoveries" id="metodo">
+        <div className="shell">
+          <Eyebrow>O que você vai descobrir</Eyebrow>
+          <div className="section-heading"><h2>Clareza para transformar conhecimento em <em>um livro de verdade.</em></h2></div>
+          <div className="discovery-grid">
+            {discoveries.map(([number, title, text]) => (
+              <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      <section className="section mentor" id="quem-conduz"><div className="shell mentor-grid">
-        <div className="mentor-photo"><img src="/jose-carlos-apresentacao.png" alt="José Carlos, criador do Treinos Lucrativos em 24h" /><div className="mentor-badge"><strong>José Carlos</strong><span>Treinos Lucrativos em 24h</span><small>Mais de 36 anos de experiência</small></div></div>
-        <div className="mentor-copy"><Eyebrow>Quem conduz</Eyebrow><h2>Apresentamos<br /><em>José Carlos</em></h2><p>Antes de ensinar Personal Trainers a vender programas, José Carlos também viveu preso à agenda.</p><p>Recém-casado e com um filho a caminho, trabalhava em várias academias. Acordava às 4h30, dormia às 23h e, mesmo trabalhando o dia inteiro, o dinheiro mal cobria as contas.</p><p>A virada começou quando percebeu que o cliente não pagava apenas pela hora ao seu lado. Pagava pelo resultado que ele sabia entregar.</p><p>Hoje, José Carlos soma mais de 36 anos de experiência e declara ter certificado 1.348 Personal Trainers, além de ministrar milhares de cursos e palestras.</p><div className="mentor-stats"><span><b>36+</b> anos no mercado</span><span><b>1.348</b> Personal Trainers certificados</span><span><b>1</b> missão: tirar profissionais da dependência da agenda</span></div></div>
-      </div></section>
+      <section className="section pricing" id="inscricao">
+        <div className="shell pricing-layout">
+          <div className="pricing-copy">
+            <Eyebrow light>Lote atual</Eyebrow>
+            <h2>O melhor momento para começar é <em>antes do próximo lote.</em></h2>
+            <p>As vagas são limitadas porque a condução acontece ao vivo pelo Zoom. O valor muda conforme os lotes avançam.</p>
+            <div className="lot-list">
+              <span className="active"><small>Lote atual</small><b>R$ 97</b></span>
+              <span><small>Lote 2</small><b>R$ 291</b></span>
+              <span><small>Lote 3</small><b>R$ 582</b></span>
+            </div>
+          </div>
+          <article className="enrollment-card">
+            <span className="availability"><i /> Inscrições no lote atual</span>
+            <h3>Workshop Autor<br />Publicado em 1 Dia</h3>
+            <p className="price-label">Investimento</p>
+            <div className="price"><small>R$</small><strong>97</strong><span>,00</span></div>
+            <p className="payment-note">Pagamento único • acesso à imersão e aos bônus</p>
+            <Cta>Quero garantir minha vaga</Cta>
+            <small className="card-footnote">Você será direcionado ao WhatsApp da equipe para concluir sua inscrição.</small>
+          </article>
+        </div>
+      </section>
 
-      <section className="section deliverables"><div className="shell">
-        <div className="deliverables-intro"><div><Eyebrow>O que você recebe</Eyebrow><h2>Workshop Treinos<br /><em>Lucrativos em 24h</em></h2></div><div><p>Um encontro online e ao vivo para Personal Trainers que querem estruturar uma nova oferta sem criar tudo do zero. José Carlos mostra o processo enquanto você começa a aplicar.</p><p><strong>Fase 1 — Escolher e personalizar</strong><br />Selecione um programa adequado ao objetivo do cliente e adapte sua apresentação.</p><p><strong>Fase 2 — Apresentar e divulgar</strong><br />Organize o valor da oferta e comece a apresentá-la para sua base e nas redes sociais.</p></div></div>
-        <div className="deliverables-grid">{deliverables.map(([title, text], index) => <article key={title}><span>{String(index + 1).padStart(2, "0")}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
-        <p className="limit-copy">Porque o corpo tem limite. <strong>E sua agenda também.</strong></p>
-      </div></section>
+      <section className="section mentor" id="alessandro">
+        <div className="shell mentor-grid">
+          <div className="mentor-photo">
+            <img src="/alessandro-apresentacao.jpg" alt="Alessandro Moreira, professor, escritor e empresário" />
+            <span className="photo-caption">São Paulo • Brasil</span>
+          </div>
+          <div className="mentor-copy">
+            <Eyebrow>Quem conduz</Eyebrow>
+            <h2>Apresentamos<br /><em>Alessandro Moreira.</em></h2>
+            <p>Alessandro nasceu e cresceu na periferia de São Paulo e começou a trabalhar ainda criança.</p>
+            <p>Com estudo, disciplina e prática, construiu uma trajetória como professor, escritor, empresário, consultor e palestrante. São mais de 16 anos atuando com desenvolvimento de pessoas e negócios, incluindo sua atuação como professor do Centro Paula Souza.</p>
+            <p>Ao longo da carreira, impactou mais de 10 mil alunos e ajudou profissionais a transformarem conhecimento em crescimento, posicionamento e autoridade.</p>
+            <p>Hoje, ensina pessoas que sempre sonharam em escrever um livro a seguirem um processo claro até a publicação da própria obra.</p>
+            <a className="instagram" href="https://www.instagram.com/ale.moreiraoficial" target="_blank" rel="noreferrer">@ale.moreiraoficial <span>↗</span></a>
+          </div>
+        </div>
+      </section>
 
-      <section className="section guarantee"><div className="shell guarantee-card"><div className="guarantee-seal"><span>7</span><small>dias</small></div><div><Eyebrow>Garantia</Eyebrow><h2>Sem complicação</h2><h3>Garantia de 7 dias</h3><p>Você tem sete dias para avaliar sua compra. Caso perceba que o workshop não é para você, poderá solicitar a devolução total dentro desse prazo.</p><strong>Sem letras miúdas. Sem complicação.</strong></div></div></section>
+      <section className="section belief-break">
+        <div className="shell belief-grid">
+          <div>
+            <Eyebrow light>Antes de continuar</Eyebrow>
+            <h2>As primeiras coisas que você precisa <em>entender.</em></h2>
+          </div>
+          <div className="belief-list">
+            <p><span>01</span>Você não precisa esperar o momento perfeito para começar.</p>
+            <p><span>02</span>Você não precisa ser escritor profissional para publicar o primeiro livro.</p>
+            <p><span>03</span>Você não precisa descobrir tudo sozinho.</p>
+            <blockquote>O que trava a maioria das pessoas não é falta de conhecimento. <strong>É falta de processo.</strong></blockquote>
+          </div>
+        </div>
+      </section>
 
-      <section className="section faq-section" id="faq"><div className="shell faq-layout">
-        <div><Eyebrow>Perguntas frequentes</Eyebrow><h2>Antes de garantir sua vaga no workshop</h2><p>Ainda ficou alguma dúvida? Confira as respostas sobre formato, acesso e conteúdo.</p></div>
-        <div className="faq-list">{faqs.map(([question, answer], index) => { const isOpen = openFaq === index; return <article className={isOpen ? "open" : ""} key={question}><button type="button" aria-expanded={isOpen} onClick={() => setOpenFaq(isOpen ? null : index)}><span>{question}</span><i aria-hidden="true">+</i></button><div className="faq-answer"><p>{answer}</p></div></article>; })}</div>
-      </div></section>
+      <section className="section immersion">
+        <div className="shell immersion-heading">
+          <Eyebrow>O que é</Eyebrow>
+          <h2>Uma imersão para transformar intenção em <em>execução.</em></h2>
+          <p>O Workshop Autor Publicado em 1 Dia é uma imersão ao vivo pelo Zoom para criar, organizar, revisar, diagramar e publicar ou encaminhar seu primeiro livro digital com orientação prática.</p>
+        </div>
+        <div className="shell phase-grid">
+          <article><span>Fase 01</span><h3>Tirar a ideia da cabeça</h3><p>Transforme seu conhecimento em estrutura, capítulos e uma direção clara para escrever.</p></article>
+          <article><span>Fase 02</span><h3>Preparar para publicação</h3><p>Revise, crie a capa, faça a diagramação e avance no processo de publicação digital.</p></article>
+        </div>
+        <div className="shell method-track">
+          {methodSteps.map(([number, title]) => <span key={number}><small>{number}</small>{title}</span>)}
+        </div>
+      </section>
 
-      <section className="final-cta"><div className="shell">
-        <Eyebrow>Última chamada</Eyebrow><h2>Você já sabe criar treino.</h2><p className="route-caption">Escolher <i>›</i> Personalizar <i>›</i> Apresentar <i>›</i> Vender</p>
-        <p>O que ainda falta é transformar esse conhecimento em algo que possa ser apresentado sem colocar outra hora na agenda.<br /><br />Por R$29,90, esse pode ser o primeiro programa que deixa de existir apenas na sua cabeça.</p>
-        <Cta>Quero garantir minha vaga agora</Cta><div className="trust-row"><span>Aula ao vivo</span><i /><span>Grupo VIP e materiais inclusos</span><i /><span>Garantia de 7 dias</span></div>
-      </div></section>
+      <section className="section bonuses">
+        <div className="shell">
+          <Eyebrow>Presentes exclusivos</Eyebrow>
+          <div className="section-heading split-heading"><h2>Você não começa<br /><em>de uma página em branco.</em></h2><p>Três ferramentas práticas para acompanhar a imersão e continuar avançando depois dela.</p></div>
+          <div className="bonus-grid">
+            {bonuses.map(([label, title, text]) => <article key={label}><span>{label}</span><h3>{title}</h3><p>{text}</p><b>Incluso</b></article>)}
+          </div>
+        </div>
+      </section>
 
-      <footer><div className="shell footer-grid"><div><a className="brand" href="#inicio"><span className="brand-mark">TL</span><span>Treinos Lucrativos<small>em 24h</small></span></a><p>Workshop Treinos Lucrativos em 24h. Conteúdo educativo para Personal Trainers com José Carlos. Resultados dependem da oferta, do público, da aplicação e da divulgação.</p></div><span>© 2026 Treinos Lucrativos em 24h · José Carlos</span></div></footer>
-      <div className={`mobile-sticky ${showMobileCta ? "visible" : ""}`}><span>1º lote · <strong>R$29,90</strong></span><Cta>Quero garantir minha vaga</Cta></div>
+      <section className="section urgency-copy">
+        <div className="shell urgency-grid">
+          <div className="giant-letter" aria-hidden="true">A</div>
+          <div>
+            <Eyebrow light>Por que isso é essencial</Eyebrow>
+            <h2>Cada mês sem publicar mantém seu <em>conhecimento invisível.</em></h2>
+            <p>Enquanto você espera estar pronto, outras pessoas ocupam o espaço de autoridade que poderia ser seu.</p>
+            <p>Um livro não é só um arquivo. É uma forma de mostrar ao mercado que você tem algo a dizer.</p>
+            <strong>E o primeiro passo não precisa ser perfeito. Precisa ser claro.</strong>
+          </div>
+        </div>
+      </section>
+
+      <section className="section audience">
+        <div className="shell">
+          <Eyebrow>Para quem é</Eyebrow>
+          <div className="audience-layout">
+            <div><h2>Para quem tem algo a dizer — e quer finalmente <em>colocar no mundo.</em></h2></div>
+            <div className="audience-cards">
+              <article className="for-you"><h3>Este workshop é para você se...</h3><ul><li>É especialista e quer transformar conhecimento em livro.</li><li>É profissional liberal e deseja fortalecer autoridade.</li><li>É professor, consultor, mentor ou empresário e quer publicar a primeira obra.</li><li>Sempre sonhou em escrever, mas nunca soube por onde começar.</li></ul></article>
+              <article><h3>Não é para quem...</h3><ul><li>Procura uma fórmula mágica sem executar.</li><li>Não quer colocar a mão na massa durante a imersão.</li><li>Espera perfeição antes de dar o primeiro passo.</li></ul></article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section difference">
+        <div className="shell difference-grid">
+          <div><Eyebrow light>O diferencial</Eyebrow><h2>Você aprende<br /><em>executando.</em></h2></div>
+          <div>
+            <p>O método Livro Pronto em 1 Dia não entrega só teoria. Ele conduz você por uma sequência prática:</p>
+            <div className="difference-flow">{["Ideia", "Estrutura", "Conteúdo", "Revisão", "Capa", "Diagramação", "Publicação"].map((item, index) => <span key={item}><small>0{index + 1}</small>{item}</span>)}</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section envisioned-result">
+        <div className="shell result-card">
+          <p className="quote-mark" aria-hidden="true">“</p>
+          <div>
+            <Eyebrow>A transformação em prática</Eyebrow>
+            <h2>Imagine terminar a imersão com os capítulos organizados e o caminho da publicação finalmente claro.</h2>
+            <p>É essa virada — sair da ideia sem direção para um projeto concreto — que o workshop foi desenhado para conduzir.</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="section offer" id="oferta">
+        <div className="shell offer-grid">
+          <div className="offer-copy">
+            <Eyebrow light>Oferta especial</Eyebrow>
+            <h2>Tudo o que você precisa para dar o <em>primeiro passo.</em></h2>
+            <div className="offer-items">{offerItems.map((item) => <span key={item}><i>✓</i>{item}</span>)}</div>
+          </div>
+          <article className="offer-card">
+            <p>Lote atual</p>
+            <h3>Autor Publicado<br />em 1 Dia</h3>
+            <div className="price"><small>R$</small><strong>97</strong><span>,00</span></div>
+            <p className="offer-urgency">Vagas limitadas pela condução ao vivo no Zoom.</p>
+            <Cta>Quero publicar meu primeiro livro</Cta>
+            <div className="secure-note"><span>◇</span><p><strong>Compra protegida</strong><small>7 dias de garantia incondicional</small></p></div>
+          </article>
+        </div>
+      </section>
+
+      <section className="section guarantee">
+        <div className="shell guarantee-card">
+          <div className="guarantee-seal"><strong>7</strong><span>dias</span></div>
+          <div><Eyebrow>Sua decisão protegida</Eyebrow><h2>Você entra com <em>garantia incondicional.</em></h2><p>Se perceber que o workshop não é para você, pode solicitar a devolução dentro de 7 dias. Simples assim.</p></div>
+        </div>
+      </section>
+
+      <section className="section faq" id="faq">
+        <div className="shell faq-layout">
+          <div><Eyebrow>Perguntas frequentes</Eyebrow><h2>O que você precisa saber <em>antes de entrar.</em></h2><p>Se sua dúvida não estiver aqui, fale com a equipe pelo botão de inscrição.</p></div>
+          <div className="faq-list">
+            {faqs.map(([question, answer], index) => {
+              const isOpen = openFaq === index;
+              return <article key={question} className={isOpen ? "open" : ""}><button type="button" aria-expanded={isOpen} onClick={() => setOpenFaq(isOpen ? null : index)}><span>{question}</span><b aria-hidden="true">+</b></button><div className="faq-answer"><p>{answer}</p></div></article>;
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="final-cta">
+        <div className="final-cta-lines" aria-hidden="true" />
+        <div className="shell">
+          <Eyebrow light>Seu próximo capítulo começa aqui</Eyebrow>
+          <h2>O seu livro não precisa continuar parado por <em>mais um ano.</em></h2>
+          <p>Se você tem conhecimento, história ou experiência para compartilhar, o próximo passo é seguir um processo claro.</p>
+          <Cta>Quero publicar meu primeiro livro</Cta>
+          <small>Workshop ao vivo • bônus inclusos • garantia de 7 dias</small>
+        </div>
+      </section>
+
+      <footer>
+        <div className="shell footer-grid">
+          <a className="brand" href="#inicio"><span className="brand-monogram">AP</span><span>Autor Publicado<small>em 1 dia</small></span></a>
+          <p>Workshop educacional ao vivo com Alessandro Moreira. O avanço até a publicação depende da participação, do estágio do projeto e das etapas de aprovação da plataforma.</p>
+          <span>© 2026 Alessandro Moreira</span>
+        </div>
+      </footer>
+
+      <div className={`mobile-sticky${showMobileCta ? " visible" : ""}`}>
+        <span>Lote atual <strong>R$ 97</strong></span><Cta compact>Garantir minha vaga</Cta>
+      </div>
     </main>
   );
 }
