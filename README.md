@@ -1,19 +1,5 @@
-# Treinos Lucrativos em 24h
+# Diagnóstico dos 4 Furos do Balde
 
-Landing page do workshop de José Carlos para Personal Trainers.
+Landing page da aula ao vivo de Wellington Camaleão para o MaisControl.
 
-## Desenvolvimento
-
-```bash
-pnpm install
-pnpm dev
-```
-
-## Produção
-
-```bash
-pnpm build
-pnpm start
-```
-
-Projeto desenvolvido com Next.js, React, TypeScript e CSS responsivo.
+O projeto usa Next.js, React, TypeScript e CSS responsivo.

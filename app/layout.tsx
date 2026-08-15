@@ -10,20 +10,20 @@ export async function generateMetadata(): Promise<Metadata> {
   const socialImage = `${origin}/og.png`;
 
   return {
-    title: "Autor Publicado em 1 Dia | Alessandro Moreira",
-    description: "Workshop ao vivo para transformar sua ideia em um livro estruturado e avançar até a publicação digital com orientação prática.",
+    title: "Diagnóstico dos 4 Furos do Balde | MaisControl",
+    description: "Descubra onde sua empresa está perdendo dinheiro e qual problema resolver primeiro em uma aula prática de 2h30 com Wellington Camaleão.",
     openGraph: {
-      title: "Autor Publicado em 1 Dia | Alessandro Moreira",
-      description: "Seu livro não precisa continuar preso na sua cabeça.",
+      title: "Diagnóstico dos 4 Furos do Balde | MaisControl",
+      description: "Sua empresa fatura. Descubra onde o dinheiro está vazando e por onde começar.",
       type: "website",
       locale: "pt_BR",
       url: origin,
-      images: [{ url: socialImage, width: 1200, height: 630, alt: "Workshop Autor Publicado em 1 Dia com Alessandro Moreira" }],
+      images: [{ url: socialImage, width: 1200, height: 630, alt: "Diagnóstico dos 4 Furos do Balde — aula ao vivo MaisControl" }],
     },
     twitter: {
       card: "summary_large_image",
-      title: "Autor Publicado em 1 Dia | Alessandro Moreira",
-      description: "Seu livro não precisa continuar preso na sua cabeça.",
+      title: "Diagnóstico dos 4 Furos do Balde | MaisControl",
+      description: "Sua empresa fatura. Descubra onde o dinheiro está vazando e por onde começar.",
       images: [socialImage],
     },
   };

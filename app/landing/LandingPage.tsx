@@ -1,313 +1,280 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   bonuses,
   discoveries,
+  evidence,
   faqs,
-  methodSteps,
+  forYou,
+  heroAngles,
+  leaks,
+  modules,
+  notForYou,
   offerItems,
-  transformations,
-  whatsappUrl,
+  siteConfig,
+  timeline,
 } from "./content";
 
-function Eyebrow({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
-  return <p className={`eyebrow${light ? " light" : ""}`}><span aria-hidden="true">✦</span>{children}</p>;
+type Angle = 1 | 2 | 3;
+
+declare global {
+  interface Window {
+    dataLayer?: Record<string, unknown>[];
+  }
 }
 
-function Cta({ children, compact = false }: { children: React.ReactNode; compact?: boolean }) {
+function track(event: string, detail: Record<string, unknown> = {}) {
+  if (typeof window === "undefined") return;
+  window.dataLayer = window.dataLayer ?? [];
+  window.dataLayer.push({ event, ...detail });
+}
+
+function checkoutHref() {
+  if (typeof window === "undefined" || siteConfig.checkoutUrl.startsWith("#")) return siteConfig.checkoutUrl;
+  const target = new URL(siteConfig.checkoutUrl, window.location.origin);
+  const current = new URLSearchParams(window.location.search);
+  current.forEach((value, key) => {
+    if (key.startsWith("utm_") && !target.searchParams.has(key)) target.searchParams.set(key, value);
+  });
+  return target.toString();
+}
+
+function Eyebrow({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
+  return <p className={`eyebrow${light ? " light" : ""}`}><span aria-hidden="true" />{children}</p>;
+}
+
+function CTA({ children, source, small = false }: { children: React.ReactNode; source: string; small?: boolean }) {
   return (
-    <a className={`cta${compact ? " compact" : ""}`} href={whatsappUrl} target="_blank" rel="noreferrer">
-      <span>{children}</span><b aria-hidden="true">↗</b>
+    <a
+      className={`cta${small ? " small" : ""}`}
+      href={checkoutHref()}
+      onClick={() => track("cta_click", { source })}
+      data-track={`cta-${source}`}
+    >
+      <span>{children}</span><b aria-hidden="true">→</b>
     </a>
   );
 }
 
+function PhotoPlaceholder({ kind }: { kind: "hero" | "profile" }) {
+  const configuredPhoto = kind === "hero" ? siteConfig.expertPhotoHero : siteConfig.expertPhotoProfile;
+  if (configuredPhoto) {
+    return <img src={configuredPhoto} alt={kind === "hero" ? "Wellington Camaleão na abertura da aula" : "Wellington Camaleão, empresário e criador do MaisControl"} />;
+  }
+  return (
+    <div className={`photo-placeholder ${kind}`} role="img" aria-label="Espaço reservado para foto real de Wellington Camaleão">
+      <div className="photo-grid" aria-hidden="true" />
+      <div className="photo-monogram" aria-hidden="true">WC</div>
+      <p><strong>Foto do Wellington</strong><span>espaço preparado para a imagem real</span></p>
+    </div>
+  );
+}
+
+function DiagnosticPanel() {
+  return (
+    <div className="diagnostic-card" aria-label="Exemplo ilustrativo do painel de diagnóstico">
+      <div className="panel-top"><span>Diagnóstico empresarial</span><b>EXEMPLO</b></div>
+      <div className="panel-score">
+        <div><small>Área prioritária</small><strong>CAIXA</strong></div>
+        <div className="score-ring"><span>72</span><small>/100</small></div>
+      </div>
+      <div className="mini-bars">
+        {[["Caixa", 82], ["Estoque", 61], ["Vendas", 47], ["Fiscal", 35]].map(([label, value]) => (
+          <div key={label as string}><span>{label}</span><i><b style={{ width: `${value}%` }} /></i><small>{value}</small></div>
+        ))}
+      </div>
+      <div className="panel-action"><span>Próximo passo recomendado</span><strong>Conferir entradas e saídas dos últimos 30 dias</strong></div>
+      <small className="illustrative">Exemplo ilustrativo de diagnóstico.</small>
+    </div>
+  );
+}
+
 export function LandingPage() {
+  const [angle, setAngle] = useState<Angle>(siteConfig.selectedAngle as Angle);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [showMobileCta, setShowMobileCta] = useState(false);
+  const [mobileCta, setMobileCta] = useState(false);
+  const heroRef = useRef<HTMLElement>(null);
+  const hero = useMemo(() => heroAngles[angle], [angle]);
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: "Diagnóstico dos 4 Furos do Balde",
+    description: "Aula ao vivo e prática de 2h30 com Wellington Camaleão para identificar o principal vazamento da empresa e definir três ações iniciais.",
+    brand: { "@type": "Brand", name: "MaisControl" },
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "BRL",
+      price: "29.90",
+      availability: "https://schema.org/InStock",
+      url: siteConfig.canonicalUrl || "https://maiscontrol.com.br",
+    },
+  };
 
   useEffect(() => {
-    const handleScroll = () => setShowMobileCta(window.scrollY > window.innerHeight * 0.8);
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const value = Number(new URLSearchParams(window.location.search).get("angulo"));
+    if (value === 1 || value === 2 || value === 3) setAngle(value);
+    track("page_view", { angle: value === 1 || value === 2 || value === 3 ? value : 3 });
+
+    const depths = new Set<number>();
+    const onScroll = () => {
+      setMobileCta(window.scrollY > (heroRef.current?.offsetHeight ?? window.innerHeight) * 0.75);
+      const page = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = page > 0 ? Math.round((window.scrollY / page) * 100) : 0;
+      [25, 50, 75, 90].forEach((depth) => {
+        if (progress >= depth && !depths.has(depth)) {
+          depths.add(depth);
+          track("scroll_depth", { depth });
+        }
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
     <main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
       <header className="site-header">
-        <a className="brand" href="#inicio" aria-label="Autor Publicado em 1 Dia — início">
-          <span className="brand-monogram">AP</span>
-          <span>Autor Publicado<small>em 1 dia</small></span>
+        <a className="brand" href="#inicio" aria-label="MaisControl — início">
+          <span className="brand-symbol" aria-hidden="true">M+</span>
+          <span><strong>MaisControl</strong><small>gestão que começa pelo diagnóstico</small></span>
         </a>
-        <nav aria-label="Navegação principal">
-          <a href="#metodo">O método</a>
-          <a href="#alessandro">Quem conduz</a>
-          <a href="#faq">Dúvidas</a>
-        </nav>
-        <Cta compact>Quero tirar meu livro do papel</Cta>
+        <a className="header-link" href="#metodo">Os 4 Furos</a>
+        <CTA source="header" small>GARANTIR MINHA VAGA</CTA>
       </header>
 
-      <section className="hero" id="inicio">
-        <div className="hero-lines" aria-hidden="true" />
-        <div className="shell hero-grid">
+      <section className="hero" id="inicio" ref={heroRef}>
+        <div className="hero-glow one" aria-hidden="true" /><div className="hero-glow two" aria-hidden="true" />
+        <div className="container hero-layout">
           <div className="hero-copy">
-            <p className="hero-kicker">Workshop ao vivo • pelo Zoom</p>
-            <h1>Seu livro não precisa continuar <em>preso na sua cabeça.</em></h1>
-            <p className="hero-subtitle">Existe um caminho para tirá-lo do papel.</p>
-            <p className="hero-description">Você já pesquisou, tentou começar e talvez até tenha escrito algumas páginas. O que faltou não foi talento — foi uma ordem clara para avançar até sentir que finalmente sabe o que fazer.</p>
-            <Cta>Quero tirar meu livro do papel</Cta>
-            <div className="hero-trust">
-              <span><b>1 dia</b> de imersão prática</span>
-              <span><b>Ao vivo</b> com orientação</span>
-              <span><b>7 dias</b> de garantia</span>
+            <p className="live-label"><i /> AULA AO VIVO <span>•</span> 2H30 <span>•</span> DIAGNÓSTICO PRÁTICO</p>
+            <h1>{hero.headline}</h1>
+            <p className="hero-subheadline">{hero.subheadline}</p>
+            <ul className="hero-benefits">
+              <li>Descubra seu maior vazamento.</li>
+              <li>Calcule a hemorragia em reais.</li>
+              <li>Saia com três ações práticas.</li>
+            </ul>
+            <div className="hero-action">
+              <CTA source="hero">{hero.cta}</CTA>
+              <div className="hero-price"><small>investimento único</small><strong>{siteConfig.price}</strong></div>
             </div>
+            <p className="secure-line"><span>✓</span> Compra segura <i /> Garantia de 7 dias <i /> Próxima turma ao vivo</p>
           </div>
-
-          <div className="hero-photo-wrap">
-            <div className="hero-photo-frame">
-              <img src="/alessandro-hero.jpg" alt="Alessandro Moreira, professor e escritor" />
-              <div className="hero-photo-label"><strong>Alessandro Moreira</strong><span>Professor • escritor • mentor</span></div>
-            </div>
-            <div className="book-card">
-              <span>Método</span><strong>Livro<br />Pronto</strong><small>em 1 dia</small>
-            </div>
-            <p className="margin-note">Conhecimento<br />transformado<br />em legado.</p>
+          <div className="hero-media">
+            <div className="hero-photo-shell"><PhotoPlaceholder kind="hero" /></div>
+            <div className="diagnosis-stamp"><small>DIAGNÓSTICO</small><strong>antes da solução</strong></div>
+            <div className="leak-chip"><i /> maior vazamento: <b>caixa</b></div>
+            <div className="photo-tag"><strong>Wellington Camaleão</strong><span>Empresário · criador do MaisControl</span></div>
           </div>
+        </div>
+        <div className="angle-switcher" aria-label="Variações da mensagem principal">
+          <span>Ângulo do anúncio</span>{([1, 2, 3] as Angle[]).map((item) => <a key={item} className={angle === item ? "active" : ""} href={`?angulo=${item}`} aria-label={`Ver ângulo ${item}`}>{item}</a>)}
         </div>
       </section>
 
-      <section className="authority-strip" aria-label="Autoridade de Alessandro Moreira">
-        <div className="shell">
-          <p><strong>16+</strong><span>anos desenvolvendo pessoas e negócios</span></p>
-          <i />
-          <p><strong>10 mil+</strong><span>alunos impactados ao longo da carreira</span></p>
-          <i />
-          <p><strong>1 método</strong><span>para aprender enquanto executa</span></p>
-        </div>
-      </section>
+      <section className="trust-strip" aria-label="Resumo da aula"><div className="container">
+        <p><strong>2h30</strong><span>de aula ao vivo e prática</span></p><i />
+        <p><strong>4 áreas</strong><span>caixa, estoque, vendas e fiscal</span></p><i />
+        <p><strong>3 ações</strong><span>para saber por onde começar</span></p><i />
+        <p><strong>7 dias</strong><span>de garantia incondicional</span></p>
+      </div></section>
 
-      <section className="section transformation">
-        <div className="shell">
-          <Eyebrow>A transformação</Eyebrow>
-          <div className="section-heading split-heading">
-            <h2>Do projeto adiado<br />ao livro que <em>finalmente avança.</em></h2>
-            <p>Você não precisa de mais uma lista de dicas. Precisa enxergar a sequência e executar cada etapa.</p>
-          </div>
-          <div className="transformation-list">
-            {transformations.map(([beforeLabel, before, afterLabel, after], index) => (
-              <article key={before}>
-                <span className="transformation-index">0{index + 1}</span>
-                <div><small>{beforeLabel}</small><p>{before}</p></div>
-                <b aria-hidden="true">→</b>
-                <div className="after"><small>{afterLabel}</small><p>{after}</p></div>
-              </article>
-            ))}
+      <section className="section pain">
+        <div className="container">
+          <Eyebrow>FATURA TODO MÊS. MAS O DINHEIRO SOME.</Eyebrow>
+          <div className="heading-split"><h2>Sua empresa funciona. <em>Mas você continua sem enxergar o que está acontecendo.</em></h2><p>Você vende, paga equipe, fornecedores e impostos. Resolve tudo. No fim do mês, ainda falta uma resposta simples: quanto realmente sobrou?</p></div>
+          <div className="before-after">
+            {[
+              ["Sistema antigo, caderno paralelo e caixa que nunca bate.", "Diagnóstico claro dos 4 Furos do Balde."],
+              ["Você decide no chute e confere três números diferentes.", "Você sabe onde o dinheiro está vazando."],
+              ["Culpa por não conseguir ‘dar conta’.", "Clareza do caminho que ainda não tentou."],
+            ].map(([before, after], i) => <article key={before}><span>0{i + 1}</span><div className="before"><small>ANTES</small><p>{before}</p></div><b aria-hidden="true">→</b><div className="after"><small>DEPOIS</small><p>{after}</p></div></article>)}
           </div>
         </div>
       </section>
 
-      <section className="section discoveries" id="metodo">
-        <div className="shell">
-          <Eyebrow>O que você vai descobrir</Eyebrow>
-          <div className="section-heading"><h2>Clareza para transformar conhecimento em <em>um livro de verdade.</em></h2></div>
-          <div className="discovery-grid">
-            {discoveries.map(([number, title, text]) => (
-              <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>
-            ))}
-          </div>
+      <section className="section mechanism" id="metodo">
+        <div className="container">
+          <Eyebrow light>DIAGNÓSTICO DOS 4 FUROS DO BALDE</Eyebrow>
+          <div className="heading-split light"><h2>Vender mais não resolve um balde que <em>continua furado.</em></h2><p>Sua empresa coloca dinheiro para dentro todos os dias. O diagnóstico mostra onde parte dele pode estar escapando — e onde olhar primeiro.</p></div>
+          <div className="leak-grid">{leaks.map((leak) => <article key={leak.title} className={leak.title === "Caixa" ? "priority" : ""}><div className="leak-top"><span>{leak.icon}</span><small>{leak.key}</small></div><h3>{leak.title}</h3><p>{leak.text}</p><div className="status"><i /> {leak.status}</div></article>)}</div>
+          <div className="flow"><span>Diagnóstico</span><b>→</b><span>Clareza</span><b>→</b><span>Prioridade</span><b>→</b><span>Implantação</span></div>
         </div>
       </section>
 
-      <section className="section pricing" id="inscricao">
-        <div className="shell pricing-layout">
-          <div className="pricing-copy">
-            <Eyebrow light>Lote atual</Eyebrow>
-            <h2>O melhor momento para começar é <em>antes do próximo lote.</em></h2>
-            <p>As vagas são limitadas porque a condução acontece ao vivo pelo Zoom. O valor muda conforme os lotes avançam.</p>
-            <div className="lot-list">
-              <span className="active"><small>Lote atual</small><b>R$ 97</b></span>
-              <span><small>Lote 2</small><b>R$ 291</b></span>
-              <span><small>Lote 3</small><b>R$ 582</b></span>
-            </div>
-          </div>
-          <article className="enrollment-card">
-            <span className="availability"><i /> Inscrições no lote atual</span>
-            <h3>Workshop Autor<br />Publicado em 1 Dia</h3>
-            <p className="price-label">Investimento</p>
-            <div className="price"><small>R$</small><strong>97</strong><span>,00</span></div>
-            <p className="payment-note">Pagamento único • acesso à imersão e aos bônus</p>
-            <Cta>Quero garantir minha vaga</Cta>
-            <small className="card-footnote">Você será direcionado ao WhatsApp da equipe para concluir sua inscrição.</small>
-          </article>
+      <section className="section discover">
+        <div className="container discover-layout">
+          <div className="discover-copy"><Eyebrow>VOCÊ VAI SABER ONDE COMEÇAR</Eyebrow><h2>Em 2h30, pare de perguntar <em>“por onde eu começo?”</em></h2><div className="check-list">{discoveries.map((item) => <p key={item}><span>✓</span>{item}</p>)}</div></div>
+          <DiagnosticPanel />
         </div>
       </section>
 
-      <section className="section mentor" id="alessandro">
-        <div className="shell mentor-grid">
-          <div className="mentor-photo">
-            <img src="/alessandro-apresentacao.jpg" alt="Alessandro Moreira, professor, escritor e empresário" />
-            <span className="photo-caption">São Paulo • Brasil</span>
-          </div>
-          <div className="mentor-copy">
-            <Eyebrow>Quem conduz</Eyebrow>
-            <h2>Apresentamos<br /><em>Alessandro Moreira.</em></h2>
-            <p>Alessandro nasceu e cresceu na periferia de São Paulo e começou a trabalhar ainda criança.</p>
-            <p>Com estudo, disciplina e prática, construiu uma trajetória como professor, escritor, empresário, consultor e palestrante. São mais de 16 anos atuando com desenvolvimento de pessoas e negócios, incluindo sua atuação como professor do Centro Paula Souza.</p>
-            <p>Ao longo da carreira, impactou mais de 10 mil alunos e ajudou profissionais a transformarem conhecimento em crescimento, posicionamento e autoridade.</p>
-            <p>Hoje, ensina pessoas que sempre sonharam em escrever um livro a seguirem um processo claro até a publicação da própria obra.</p>
-            <a className="instagram" href="https://www.instagram.com/ale.moreiraoficial" target="_blank" rel="noreferrer">@ale.moreiraoficial <span>↗</span></a>
-          </div>
+      <section className="section how">
+        <div className="container">
+          <div className="center-heading"><Eyebrow>SEM PRECISAR ENTENDER ERP</Eyebrow><h2>Você só precisa responder sobre <em>a sua empresa.</em></h2></div>
+          <div className="steps">{[
+            ["01", "Responda ao quiz", "Perguntas simples sobre caixa, estoque, vendas e fiscal."],
+            ["02", "Enxergue os vazamentos", "O diagnóstico mostra onde você perde controle e estima a hemorragia."],
+            ["03", "Descubra o primeiro passo", "Saia sabendo qual furo atender e quais ações iniciar."],
+          ].map(([n, title, text]) => <article key={n}><span>{n}</span><div className="step-icon" aria-hidden="true">{n === "01" ? "?" : n === "02" ? "⌁" : "→"}</div><h3>{title}</h3><p>{text}</p></article>)}</div>
         </div>
       </section>
 
-      <section className="section belief-break">
-        <div className="shell belief-grid">
-          <div>
-            <Eyebrow light>Antes de continuar</Eyebrow>
-            <h2>As primeiras coisas que você precisa <em>entender.</em></h2>
-          </div>
-          <div className="belief-list">
-            <p><span>01</span>Você não precisa esperar o momento perfeito para começar.</p>
-            <p><span>02</span>Você não precisa ser escritor profissional para publicar o primeiro livro.</p>
-            <p><span>03</span>Você não precisa descobrir tudo sozinho.</p>
-            <blockquote>O que trava a maioria das pessoas não é falta de conhecimento. <strong>É falta de processo.</strong></blockquote>
-          </div>
+      <section className="section beliefs">
+        <div className="container beliefs-layout">
+          <div><Eyebrow light>VOCÊ NÃO FALHOU. O CAMINHO FALHOU.</Eyebrow><h2>Talvez tenham feito você começar <em>pelo lugar errado.</em></h2><p className="belief-intro">Mais um login não conserta uma operação que ninguém ajudou a diagnosticar.</p></div>
+          <div className="belief-cards">{[
+            ["Você não falhou porque ‘não tem cabeça para sistema’.", "Sistema genérico sem implantação costuma virar abandono."],
+            ["Ter tudo na cabeça não é controle. É risco.", "Se a empresa para quando você sai, ela ainda depende demais de você."],
+            ["O caos não espera o movimento acalmar.", "Ele diminui quando você descobre o que organizar primeiro."],
+          ].map(([title, text], i) => <article key={title}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
+        </div>
+        <p className="belief-closer">Diagnóstico vem antes da solução.</p>
+      </section>
+
+      <section className="section live-class" id="aula">
+        <div className="container">
+          <div className="heading-split"><div><Eyebrow>A AULA</Eyebrow><h2>Não é palestra motivacional. <em>É diagnóstico aplicado à sua empresa.</em></h2></div><p>Uma aula ao vivo e prática para donos de PMEs descobrirem onde o dinheiro está vazando e qual furo precisa ser tampado primeiro. Você olha para sua realidade e responde com honestidade.</p></div>
+          <div className="class-band">{["Aula ao vivo", "2h30 de duração", "Quiz aplicado", "Demonstração real", "Diagnóstico", "3 ações práticas"].map((item, i) => <span key={item}><b>{String(i + 1).padStart(2, "0")}</b>{item}</span>)}</div>
+          <div className="modules"><div className="module-title"><small>CONTEÚDO DA AULA</small><h3>O que você vai aprender</h3></div>{modules.map(([n, title, text]) => <article key={n}><span>{n}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div>
         </div>
       </section>
 
-      <section className="section immersion">
-        <div className="shell immersion-heading">
-          <Eyebrow>O que é</Eyebrow>
-          <h2>Uma imersão para transformar intenção em <em>execução.</em></h2>
-          <p>O Workshop Autor Publicado em 1 Dia é uma imersão ao vivo pelo Zoom para criar, organizar, revisar, diagramar e publicar ou encaminhar seu primeiro livro digital com orientação prática.</p>
-        </div>
-        <div className="shell phase-grid">
-          <article><span>Fase 01</span><h3>Tirar a ideia da cabeça</h3><p>Transforme seu conhecimento em estrutura, capítulos e uma direção clara para escrever.</p></article>
-          <article><span>Fase 02</span><h3>Preparar para publicação</h3><p>Revise, crie a capa, faça a diagramação e avance no processo de publicação digital.</p></article>
-        </div>
-        <div className="shell method-track">
-          {methodSteps.map(([number, title]) => <span key={number}><small>{number}</small>{title}</span>)}
+      <section className="section mentor" id="wellington">
+        <div className="container mentor-layout">
+          <div className="profile-photo"><PhotoPlaceholder kind="profile" /><div className="profile-seal"><strong>2018</strong><span>gestão testada<br />na própria empresa</span></div></div>
+          <div className="mentor-copy"><Eyebrow>QUEM CONDUZ</Eyebrow><h2>Wellington não fala de gestão como palestrante. <em>Ele fala como empresário.</em></h2><div className="timeline">{timeline.map(([year, title, text]) => <article key={year}><span>{year}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div><a className="text-link" href="https://www.instagram.com/wellington.ltda/" target="_blank" rel="noreferrer">Conheça @wellington.ltda <span>↗</span></a></div>
         </div>
       </section>
 
-      <section className="section bonuses">
-        <div className="shell">
-          <Eyebrow>Presentes exclusivos</Eyebrow>
-          <div className="section-heading split-heading"><h2>Você não começa<br /><em>de uma página em branco.</em></h2><p>Três ferramentas práticas para acompanhar a imersão e continuar avançando depois dela.</p></div>
-          <div className="bonus-grid">
-            {bonuses.map(([label, title, text]) => <article key={label}><span>{label}</span><h3>{title}</h3><p>{text}</p><b>Incluso</b></article>)}
-          </div>
-        </div>
+      <section className="section proof">
+        <div className="container"><Eyebrow>PROVAS DE OPERAÇÃO</Eyebrow><div className="heading-split"><h2>Antes de virar uma oferta, o MaisControl precisou <em>funcionar no mundo real.</em></h2><p>Sem estrelas inventadas. Sem personagens fictícios. Apenas fatos operacionais apresentados com transparência.</p></div><div className="proof-grid">{evidence.map(([title, text], i) => <article key={title}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div><p className="evidence-note">Os primeiros depoimentos formais da nova turma ainda serão coletados. Por isso, esta página utiliza apenas fatos e provas operacionais verificáveis.</p></div>
       </section>
 
-      <section className="section urgency-copy">
-        <div className="shell urgency-grid">
-          <div className="giant-letter" aria-hidden="true">A</div>
-          <div>
-            <Eyebrow light>Por que isso é essencial</Eyebrow>
-            <h2>Cada mês sem publicar mantém seu <em>conhecimento invisível.</em></h2>
-            <p>Enquanto você espera estar pronto, outras pessoas ocupam o espaço de autoridade que poderia ser seu.</p>
-            <p>Um livro não é só um arquivo. É uma forma de mostrar ao mercado que você tem algo a dizer.</p>
-            <strong>E o primeiro passo não precisa ser perfeito. Precisa ser claro.</strong>
-          </div>
-        </div>
+      <section className="section bonus">
+        <div className="container"><div className="center-heading"><Eyebrow>ENTREGÁVEIS</Eyebrow><h2>Ferramentas para você <em>não voltar ao escuro.</em></h2></div><div className="bonus-grid">{bonuses.map(([title, text, tag], i) => <article key={title}><div className={`bonus-mock mock-${i}`}><span>{tag}</span><i aria-hidden="true" /></div><small>BÔNUS {String(i + 1).padStart(2, "0")}</small><h3>{title}</h3><p>{text}</p></article>)}</div></div>
       </section>
 
-      <section className="section audience">
-        <div className="shell">
-          <Eyebrow>Para quem é</Eyebrow>
-          <div className="audience-layout">
-            <div><h2>Para quem tem algo a dizer — e quer finalmente <em>colocar no mundo.</em></h2></div>
-            <div className="audience-cards">
-              <article className="for-you"><h3>Este workshop é para você se...</h3><ul><li>É especialista e quer transformar conhecimento em livro.</li><li>É profissional liberal e deseja fortalecer autoridade.</li><li>É professor, consultor, mentor ou empresário e quer publicar a primeira obra.</li><li>Sempre sonhou em escrever, mas nunca soube por onde começar.</li></ul></article>
-              <article><h3>Não é para quem...</h3><ul><li>Procura uma fórmula mágica sem executar.</li><li>Não quer colocar a mão na massa durante a imersão.</li><li>Espera perfeição antes de dar o primeiro passo.</li></ul></article>
-            </div>
-          </div>
-        </div>
-      </section>
+      <section className="section urgency"><div className="container urgency-layout"><div><Eyebrow light>O CUSTO DE ADIAR</Eyebrow><h2>Esperar o movimento acalmar é esperar o balde <em>parar de vazar sozinho.</em></h2></div><div className="urgency-copy"><p>Cada mês no escuro pode custar dinheiro.</p><p>Trocar de sistema sem diagnóstico pode virar mais uma tentativa abandonada.</p><p>Sua equipe não opera melhor se tudo continua preso na sua cabeça.</p><strong>Você não precisa resolver toda a empresa hoje. Precisa descobrir onde começar.</strong></div></div></section>
 
-      <section className="section difference">
-        <div className="shell difference-grid">
-          <div><Eyebrow light>O diferencial</Eyebrow><h2>Você aprende<br /><em>executando.</em></h2></div>
-          <div>
-            <p>O método Livro Pronto em 1 Dia não entrega só teoria. Ele conduz você por uma sequência prática:</p>
-            <div className="difference-flow">{["Ideia", "Estrutura", "Conteúdo", "Revisão", "Capa", "Diagramação", "Publicação"].map((item, index) => <span key={item}><small>0{index + 1}</small>{item}</span>)}</div>
-          </div>
-        </div>
-      </section>
+      <section className="section audience"><div className="container"><div className="center-heading"><Eyebrow>PARA QUEM É</Eyebrow><h2>Esta decisão faz sentido <em>para a sua empresa?</em></h2></div><div className="audience-grid"><article className="yes"><p className="audience-label"><span>✓</span> É PARA VOCÊ SE...</p><ul>{forYou.map((item) => <li key={item}>{item}</li>)}</ul></article><article className="no"><p className="audience-label"><span>×</span> NÃO É PARA VOCÊ SE...</p><ul>{notForYou.map((item) => <li key={item}>{item}</li>)}</ul></article></div></div></section>
 
-      <section className="section envisioned-result">
-        <div className="shell result-card">
-          <p className="quote-mark" aria-hidden="true">“</p>
-          <div>
-            <Eyebrow>A transformação em prática</Eyebrow>
-            <h2>Imagine terminar a imersão com os capítulos organizados e o caminho da publicação finalmente claro.</h2>
-            <p>É essa virada — sair da ideia sem direção para um projeto concreto — que o workshop foi desenhado para conduzir.</p>
-          </div>
-        </div>
-      </section>
+      <section className="section comparison"><div className="container"><Eyebrow light>O DIFERENCIAL</Eyebrow><div className="heading-split light"><h2>A maioria começa vendendo sistema. <em>O MaisControl começa mostrando o problema.</em></h2><p>Você não começa trocando tudo. Começa descobrindo o que precisa mudar primeiro.</p></div><div className="comparison-grid"><article><small>CAMINHO COMUM</small>{["Compra um sistema", "Recebe um login", "Tenta configurar sozinho", "Mantém a planilha paralela", "A equipe não adere", "Abandona"].map((item) => <p key={item}><span>×</span>{item}</p>)}</article><article className="mc-path"><small>CAMINHO MAISCONTROL</small>{["Diagnóstico", "Clareza", "Maior furo", "Ordem de prioridade", "Decisão consciente", "Implantação acompanhada, se fizer sentido"].map((item) => <p key={item}><span>✓</span>{item}</p>)}</article></div></div></section>
 
-      <section className="section offer" id="oferta">
-        <div className="shell offer-grid">
-          <div className="offer-copy">
-            <Eyebrow light>Oferta especial</Eyebrow>
-            <h2>Tudo o que você precisa para dar o <em>primeiro passo.</em></h2>
-            <div className="offer-items">{offerItems.map((item) => <span key={item}><i>✓</i>{item}</span>)}</div>
-          </div>
-          <article className="offer-card">
-            <p>Lote atual</p>
-            <h3>Autor Publicado<br />em 1 Dia</h3>
-            <div className="price"><small>R$</small><strong>97</strong><span>,00</span></div>
-            <p className="offer-urgency">Vagas limitadas pela condução ao vivo no Zoom.</p>
-            <Cta>Quero publicar meu primeiro livro</Cta>
-            <div className="secure-note"><span>◇</span><p><strong>Compra protegida</strong><small>7 dias de garantia incondicional</small></p></div>
-          </article>
-        </div>
-      </section>
+      <section className="section offer" id="checkout"><div className="container offer-layout"><div className="offer-copy"><Eyebrow light>A PRÓXIMA TURMA AO VIVO</Eyebrow><h2>Por R$29,90, você compra clareza antes de investir em <em>qualquer implantação.</em></h2><p>Como Ter Controle Total da Sua Empresa em 7 Dias — descubra onde o dinheiro está vazando e tampe os furos antes que o balde esvazie.</p><div className="offer-list">{offerItems.map((item) => <span key={item}><i>✓</i>{item}</span>)}</div></div><article className="price-card"><p className="availability"><i /> Próxima turma ao vivo</p><small>INVESTIMENTO ÚNICO</small><div className="big-price"><span>R$</span><strong>29</strong><b>,90</b></div><p className="date-note">{siteConfig.eventTime}.</p><CTA source="offer">GARANTIR MINHA VAGA POR R$29,90</CTA><p className="secure-line dark"><span>✓</span> Aula ao vivo <i /> Compra segura <i /> Garantia de 7 dias</p><div className="checkout-placeholder"><span>Checkout será conectado aqui</span><small>Todos os botões já usam a mesma configuração.</small></div></article></div></section>
 
-      <section className="section guarantee">
-        <div className="shell guarantee-card">
-          <div className="guarantee-seal"><strong>7</strong><span>dias</span></div>
-          <div><Eyebrow>Sua decisão protegida</Eyebrow><h2>Você entra com <em>garantia incondicional.</em></h2><p>Se perceber que o workshop não é para você, pode solicitar a devolução dentro de 7 dias. Simples assim.</p></div>
-        </div>
-      </section>
+      <section className="section guarantee"><div className="container guarantee-layout"><div className="guarantee-badge"><span>7</span><strong>DIAS</strong><small>GARANTIA<br />INCONDICIONAL</small></div><div><Eyebrow>DECIDA COM TRANQUILIDADE</Eyebrow><h2>Você tem 7 dias para ver se <em>a entrega faz sentido.</em></h2><p>Assista à aula. Conheça o diagnóstico. Se entender que não foi para você, solicite o reembolso dentro de 7 dias e receba de volta o valor pago.</p><strong>Sem pegadinha. Sem precisar provar nada.</strong></div></div></section>
 
-      <section className="section faq" id="faq">
-        <div className="shell faq-layout">
-          <div><Eyebrow>Perguntas frequentes</Eyebrow><h2>O que você precisa saber <em>antes de entrar.</em></h2><p>Se sua dúvida não estiver aqui, fale com a equipe pelo botão de inscrição.</p></div>
-          <div className="faq-list">
-            {faqs.map(([question, answer], index) => {
-              const isOpen = openFaq === index;
-              return <article key={question} className={isOpen ? "open" : ""}><button type="button" aria-expanded={isOpen} onClick={() => setOpenFaq(isOpen ? null : index)}><span>{question}</span><b aria-hidden="true">+</b></button><div className="faq-answer"><p>{answer}</p></div></article>;
-            })}
-          </div>
-        </div>
-      </section>
+      <section className="section faq" id="faq"><div className="container faq-layout"><div className="faq-heading"><Eyebrow>PERGUNTAS FREQUENTES</Eyebrow><h2>Clareza antes de <em>dar o primeiro passo.</em></h2><p>O que a aula entrega, como funciona e o que não está incluído.</p></div><div className="faq-list">{faqs.map(([question, answer], index) => { const isOpen = openFaq === index; return <article key={question} className={isOpen ? "open" : ""}><h3><button type="button" aria-expanded={isOpen} aria-controls={`faq-${index}`} onClick={() => { setOpenFaq(isOpen ? null : index); track("faq_open", { question, open: !isOpen }); }}><span>{question}</span><b aria-hidden="true">+</b></button></h3><div className="faq-answer" id={`faq-${index}`}><p>{answer}</p></div></article>; })}</div></div></section>
 
-      <section className="final-cta">
-        <div className="final-cta-lines" aria-hidden="true" />
-        <div className="shell">
-          <Eyebrow light>Seu próximo capítulo começa aqui</Eyebrow>
-          <h2>O seu livro não precisa continuar parado por <em>mais um ano.</em></h2>
-          <p>Se você tem conhecimento, história ou experiência para compartilhar, o próximo passo é seguir um processo claro.</p>
-          <Cta>Quero publicar meu primeiro livro</Cta>
-          <small>Workshop ao vivo • bônus inclusos • garantia de 7 dias</small>
-        </div>
-      </section>
+      <section className="final-cta"><div className="final-lines" aria-hidden="true" /><div className="container"><Eyebrow light>COMECE PELO FURO</Eyebrow><h2>Você já tentou organizar sozinho. <em>Agora comece pelo diagnóstico.</em></h2><p>Entre na aula, descubra onde o dinheiro está vazando e saia com clareza sobre o primeiro furo que precisa ser tampado.</p><CTA source="final">GARANTIR MINHA VAGA POR R$29,90</CTA><small>Compra segura • Garantia incondicional de 7 dias</small></div></section>
 
-      <footer>
-        <div className="shell footer-grid">
-          <a className="brand" href="#inicio"><span className="brand-monogram">AP</span><span>Autor Publicado<small>em 1 dia</small></span></a>
-          <p>Workshop educacional ao vivo com Alessandro Moreira. O avanço até a publicação depende da participação, do estágio do projeto e das etapas de aprovação da plataforma.</p>
-          <span>© 2026 Alessandro Moreira</span>
-        </div>
-      </footer>
+      <footer><div className="container footer-top"><a className="brand" href="#inicio"><span className="brand-symbol">M+</span><span><strong>MaisControl</strong><small>gestão que começa pelo diagnóstico</small></span></a><div className="footer-links"><a href="https://maiscontrol.com.br" target="_blank" rel="noreferrer">Site oficial</a><a href="https://www.instagram.com/wellington.ltda/" target="_blank" rel="noreferrer">@wellington.ltda</a><a href="#legal">Termos de Uso</a><a href="#legal">Política de Privacidade</a></div></div><div className="container footer-bottom" id="legal"><p>Os resultados dependem da realidade, das decisões e da execução de cada empresa. Esta aula entrega diagnóstico e direção; não promete resultado financeiro garantido. Os links legais estão preparados para receber as páginas oficiais.</p><span>© 2026 MaisControl</span></div></footer>
 
-      <div className={`mobile-sticky${showMobileCta ? " visible" : ""}`}>
-        <span>Lote atual <strong>R$ 97</strong></span><Cta compact>Garantir minha vaga</Cta>
-      </div>
+      <div className={`mobile-sticky${mobileCta ? " visible" : ""}`}><span>Aula ao vivo<strong>R$29,90</strong></span><CTA source="mobile" small>GARANTIR VAGA</CTA></div>
     </main>
   );
 }
