@@ -1,280 +1,138 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  bonuses,
-  discoveries,
-  evidence,
-  faqs,
-  forYou,
-  heroAngles,
-  leaks,
-  modules,
-  notForYou,
-  offerItems,
-  siteConfig,
-  timeline,
-} from "./content";
+import { audience, discoveries, faqs, profiles, program, transformations, truths, type ProfileKey } from "./content";
 
-type Angle = 1 | 2 | 3;
+const A = "/assets/gpt/final/";
+const story = [
+  ["story-01-build.webp", "Você sabe construir.", "Isso nunca foi o problema."],
+  ["story-02-deploy.webp", "Depois do deploy,", "o produto fica pronto e a página vai pro ar."],
+  ["story-03-silence.webp", "Então vem o silêncio.", "Ou o cliente pergunta o preço e some quando você responde."],
+  ["story-04-refactor.webp", "Aí você volta pro código.", "Refatora, adiciona feature, melhora a arquitetura — e conserta a parte que já funcionava."],
+  ["story-05-offer.webp", "O que faltava era a oferta.", "Promessa, público, preço e experiência. Em 2 noites, você monta a sua."],
+] as const;
 
-declare global {
-  interface Window {
-    dataLayer?: Record<string, unknown>[];
-  }
+function TrackLink({ children, source, className = "cta" }: { children: React.ReactNode; source: string; className?: string }) {
+  const checkout = process.env.NEXT_PUBLIC_CHECKOUT_URL || "#inscricao";
+  return <a className={className} href={checkout} data-source={source}><span>{children}</span><b aria-hidden="true">↗</b></a>;
 }
 
-function track(event: string, detail: Record<string, unknown> = {}) {
-  if (typeof window === "undefined") return;
-  window.dataLayer = window.dataLayer ?? [];
-  window.dataLayer.push({ event, ...detail });
-}
-
-function checkoutHref() {
-  if (typeof window === "undefined" || siteConfig.checkoutUrl.startsWith("#")) return siteConfig.checkoutUrl;
-  const target = new URL(siteConfig.checkoutUrl, window.location.origin);
-  const current = new URLSearchParams(window.location.search);
-  current.forEach((value, key) => {
-    if (key.startsWith("utm_") && !target.searchParams.has(key)) target.searchParams.set(key, value);
-  });
-  return target.toString();
-}
-
-function Eyebrow({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
-  return <p className={`eyebrow${light ? " light" : ""}`}><span aria-hidden="true" />{children}</p>;
-}
-
-function CTA({ children, source, small = false }: { children: React.ReactNode; source: string; small?: boolean }) {
-  return (
-    <a
-      className={`cta${small ? " small" : ""}`}
-      href={checkoutHref()}
-      onClick={() => track("cta_click", { source })}
-      data-track={`cta-${source}`}
-    >
-      <span>{children}</span><b aria-hidden="true">→</b>
-    </a>
-  );
-}
-
-function PhotoPlaceholder({ kind }: { kind: "hero" | "profile" }) {
-  const configuredPhoto = kind === "hero" ? siteConfig.expertPhotoHero : siteConfig.expertPhotoProfile;
-  if (configuredPhoto) {
-    return <img src={configuredPhoto} alt={kind === "hero" ? "Wellington Camaleão na abertura da aula" : "Wellington Camaleão, empresário e criador do MaisControl"} />;
-  }
-  return (
-    <div className={`photo-placeholder ${kind}`} role="img" aria-label="Espaço reservado para foto real de Wellington Camaleão">
-      <div className="photo-grid" aria-hidden="true" />
-      <div className="photo-monogram" aria-hidden="true">WC</div>
-      <p><strong>Foto do Wellington</strong><span>espaço preparado para a imagem real</span></p>
-    </div>
-  );
-}
-
-function DiagnosticPanel() {
-  return (
-    <div className="diagnostic-card" aria-label="Exemplo ilustrativo do painel de diagnóstico">
-      <div className="panel-top"><span>Diagnóstico empresarial</span><b>EXEMPLO</b></div>
-      <div className="panel-score">
-        <div><small>Área prioritária</small><strong>CAIXA</strong></div>
-        <div className="score-ring"><span>72</span><small>/100</small></div>
-      </div>
-      <div className="mini-bars">
-        {[["Caixa", 82], ["Estoque", 61], ["Vendas", 47], ["Fiscal", 35]].map(([label, value]) => (
-          <div key={label as string}><span>{label}</span><i><b style={{ width: `${value}%` }} /></i><small>{value}</small></div>
-        ))}
-      </div>
-      <div className="panel-action"><span>Próximo passo recomendado</span><strong>Conferir entradas e saídas dos últimos 30 dias</strong></div>
-      <small className="illustrative">Exemplo ilustrativo de diagnóstico.</small>
-    </div>
-  );
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return <p className="eyebrow"><span aria-hidden="true" />{children}</p>;
 }
 
 export function LandingPage() {
-  const [angle, setAngle] = useState<Angle>(siteConfig.selectedAngle as Angle);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [mobileCta, setMobileCta] = useState(false);
+  const [profile, setProfile] = useState<ProfileKey>("conscienciosidade");
+  const [activeScene, setActiveScene] = useState(0);
+  const [showMobile, setShowMobile] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
-  const hero = useMemo(() => heroAngles[angle], [angle]);
-  const productSchema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: "Diagnóstico dos 4 Furos do Balde",
-    description: "Aula ao vivo e prática de 2h30 com Wellington Camaleão para identificar o principal vazamento da empresa e definir três ações iniciais.",
-    brand: { "@type": "Brand", name: "MaisControl" },
-    offers: {
-      "@type": "Offer",
-      priceCurrency: "BRL",
-      price: "29.90",
-      availability: "https://schema.org/InStock",
-      url: siteConfig.canonicalUrl || "https://maiscontrol.com.br",
-    },
-  };
+  const profileCopy = useMemo(() => profiles[profile], [profile]);
 
   useEffect(() => {
-    const value = Number(new URLSearchParams(window.location.search).get("angulo"));
-    if (value === 1 || value === 2 || value === 3) setAngle(value);
-    track("page_view", { angle: value === 1 || value === 2 || value === 3 ? value : 3 });
+    const requested = new URLSearchParams(window.location.search).get("perfil") as ProfileKey | null;
+    const profileTimer = requested && requested in profiles ? window.setTimeout(() => setProfile(requested), 0) : undefined;
 
-    const depths = new Set<number>();
-    const onScroll = () => {
-      setMobileCta(window.scrollY > (heroRef.current?.offsetHeight ?? window.innerHeight) * 0.75);
-      const page = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = page > 0 ? Math.round((window.scrollY / page) * 100) : 0;
-      [25, 50, 75, 90].forEach((depth) => {
-        if (progress >= depth && !depths.has(depth)) {
-          depths.add(depth);
-          track("scroll_depth", { depth });
-        }
+    const onScroll = () => setShowMobile(window.scrollY > (heroRef.current?.offsetHeight || window.innerHeight) * 0.7);
+    const steps = document.querySelectorAll<HTMLElement>("[data-scene]");
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) setActiveScene(Number((entry.target as HTMLElement).dataset.scene));
       });
-    };
+    }, { rootMargin: "-35% 0px -45%", threshold: 0 });
+    steps.forEach((step) => observer.observe(step));
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => { if (profileTimer) window.clearTimeout(profileTimer); observer.disconnect(); window.removeEventListener("scroll", onScroll); };
   }, []);
 
-  return (
-    <main>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
-      <header className="site-header">
-        <a className="brand" href="#inicio" aria-label="MaisControl — início">
-          <span className="brand-symbol" aria-hidden="true">M+</span>
-          <span><strong>MaisControl</strong><small>gestão que começa pelo diagnóstico</small></span>
-        </a>
-        <a className="header-link" href="#metodo">Os 4 Furos</a>
-        <CTA source="header" small>GARANTIR MINHA VAGA</CTA>
-      </header>
+  const eventSchema = {
+    "@context": "https://schema.org", "@type": "EducationEvent",
+    name: "Workshop Código que Vende", eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+    description: "Duas noites ao vivo para transformar conhecimento técnico em uma oferta com público, promessa, preço e plano de venda.",
+    performer: { "@type": "Person", name: "Matheus Gomes" },
+    offers: { "@type": "Offer", price: "47", priceCurrency: "BRL", availability: "https://schema.org/InStock" },
+  };
 
-      <section className="hero" id="inicio" ref={heroRef}>
-        <div className="hero-glow one" aria-hidden="true" /><div className="hero-glow two" aria-hidden="true" />
-        <div className="container hero-layout">
-          <div className="hero-copy">
-            <p className="live-label"><i /> AULA AO VIVO <span>•</span> 2H30 <span>•</span> DIAGNÓSTICO PRÁTICO</p>
-            <h1>{hero.headline}</h1>
-            <p className="hero-subheadline">{hero.subheadline}</p>
-            <ul className="hero-benefits">
-              <li>Descubra seu maior vazamento.</li>
-              <li>Calcule a hemorragia em reais.</li>
-              <li>Saia com três ações práticas.</li>
-            </ul>
-            <div className="hero-action">
-              <CTA source="hero">{hero.cta}</CTA>
-              <div className="hero-price"><small>investimento único</small><strong>{siteConfig.price}</strong></div>
-            </div>
-            <p className="secure-line"><span>✓</span> Compra segura <i /> Garantia de 7 dias <i /> Próxima turma ao vivo</p>
-          </div>
-          <div className="hero-media">
-            <div className="hero-photo-shell"><PhotoPlaceholder kind="hero" /></div>
-            <div className="diagnosis-stamp"><small>DIAGNÓSTICO</small><strong>antes da solução</strong></div>
-            <div className="leak-chip"><i /> maior vazamento: <b>caixa</b></div>
-            <div className="photo-tag"><strong>Wellington Camaleão</strong><span>Empresário · criador do MaisControl</span></div>
-          </div>
+  return <main id="top">
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }} />
+
+    <header className="header">
+      <a className="brand" href="#top"><span>&lt;/&gt;</span><strong>CÓDIGO QUE VENDE</strong></a>
+      <nav aria-label="Navegação principal"><a href="#programa">Programa</a><a href="#matheus">Matheus</a><a href="#faq">FAQ</a></nav>
+      <TrackLink source="header" className="cta small">GARANTIR VAGA · R$ 47</TrackLink>
+    </header>
+
+    <section className="hero" ref={heroRef}>
+      <picture className="hero-picture">
+        <source media="(max-width: 720px)" srcSet={`${A}hero-mobile.webp`} />
+        <img src={`${A}hero-desktop.webp`} alt="Matheus Gomes em um estúdio escuro com elementos abstratos de software e oferta" fetchPriority="high" />
+      </picture>
+      <div className="hero-shade" />
+      <div className="container hero-content">
+        <p className="live"><i /> WORKSHOP AO VIVO · 2 NOITES · 120 MIN CADA</p>
+        <h1>{profileCopy.headline}</h1>
+        <p className="hero-sub">{profileCopy.subheadline}</p>
+        <TrackLink source={`hero-${profile}`}>{profileCopy.cta}</TrackLink>
+        <div className="hero-badges">
+          <span>13 empresas construídas e vendidas</span><span>M&amp;A concluído em 2023</span><span>Replay por 48h</span><span>Garantia de 7 dias</span>
         </div>
-        <div className="angle-switcher" aria-label="Variações da mensagem principal">
-          <span>Ângulo do anúncio</span>{([1, 2, 3] as Angle[]).map((item) => <a key={item} className={angle === item ? "active" : ""} href={`?angulo=${item}`} aria-label={`Ver ângulo ${item}`}>{item}</a>)}
-        </div>
-      </section>
+      </div>
+      <a className="scroll-cue" href="#virada">SCROLL <span>↓</span></a>
+    </section>
 
-      <section className="trust-strip" aria-label="Resumo da aula"><div className="container">
-        <p><strong>2h30</strong><span>de aula ao vivo e prática</span></p><i />
-        <p><strong>4 áreas</strong><span>caixa, estoque, vendas e fiscal</span></p><i />
-        <p><strong>3 ações</strong><span>para saber por onde começar</span></p><i />
-        <p><strong>7 dias</strong><span>de garantia incondicional</span></p>
-      </div></section>
+    <section className="proof-bar"><div className="container"><strong>O código entrega.</strong><p>{profileCopy.proof}</p></div></section>
 
-      <section className="section pain">
-        <div className="container">
-          <Eyebrow>FATURA TODO MÊS. MAS O DINHEIRO SOME.</Eyebrow>
-          <div className="heading-split"><h2>Sua empresa funciona. <em>Mas você continua sem enxergar o que está acontecendo.</em></h2><p>Você vende, paga equipe, fornecedores e impostos. Resolve tudo. No fim do mês, ainda falta uma resposta simples: quanto realmente sobrou?</p></div>
-          <div className="before-after">
-            {[
-              ["Sistema antigo, caderno paralelo e caixa que nunca bate.", "Diagnóstico claro dos 4 Furos do Balde."],
-              ["Você decide no chute e confere três números diferentes.", "Você sabe onde o dinheiro está vazando."],
-              ["Culpa por não conseguir ‘dar conta’.", "Clareza do caminho que ainda não tentou."],
-            ].map(([before, after], i) => <article key={before}><span>0{i + 1}</span><div className="before"><small>ANTES</small><p>{before}</p></div><b aria-hidden="true">→</b><div className="after"><small>DEPOIS</small><p>{after}</p></div></article>)}
-          </div>
-        </div>
-      </section>
+    <section className="section transformation" id="virada"><div className="container">
+      <Eyebrow>A VIRADA</Eyebrow><div className="section-head"><h2>O problema não é a sua capacidade de construir. <em>É o que acontece depois.</em></h2><p>Você sai do workshop com as peças que faltavam entre o deploy e a primeira venda.</p></div>
+      <div className="transform-grid">{transformations.map(([before, after], i) => <article key={before}><span>0{i + 1}</span><div><small>VOCÊ SAI DE</small><p>{before}</p></div><b>→</b><div><small>VOCÊ VAI PRA</small><p>{after}</p></div></article>)}</div>
+    </div></section>
 
-      <section className="section mechanism" id="metodo">
-        <div className="container">
-          <Eyebrow light>DIAGNÓSTICO DOS 4 FUROS DO BALDE</Eyebrow>
-          <div className="heading-split light"><h2>Vender mais não resolve um balde que <em>continua furado.</em></h2><p>Sua empresa coloca dinheiro para dentro todos os dias. O diagnóstico mostra onde parte dele pode estar escapando — e onde olhar primeiro.</p></div>
-          <div className="leak-grid">{leaks.map((leak) => <article key={leak.title} className={leak.title === "Caixa" ? "priority" : ""}><div className="leak-top"><span>{leak.icon}</span><small>{leak.key}</small></div><h3>{leak.title}</h3><p>{leak.text}</p><div className="status"><i /> {leak.status}</div></article>)}</div>
-          <div className="flow"><span>Diagnóstico</span><b>→</b><span>Clareza</span><b>→</b><span>Prioridade</span><b>→</b><span>Implantação</span></div>
-        </div>
-      </section>
+    <section className="story" aria-label="Do código à oferta">
+      <div className="story-stage" aria-hidden="true">
+        {story.map(([image], index) => <img key={image} className={index === activeScene ? "active" : ""} src={`${A}${image}`} alt="" loading={index ? "lazy" : "eager"} />)}
+        <div className="story-vignette" />
+      </div>
+      <div className="story-steps container">{story.map(([, title, text], index) => <article data-scene={index} key={title}><span>0{index + 1}</span><h2>{title}</h2><p>{text}</p>{index === 4 && <div className="lever-pills"><b>PROMESSA</b><b>PÚBLICO</b><b>PREÇO</b><b>EXPERIÊNCIA</b></div>}</article>)}</div>
+    </section>
 
-      <section className="section discover">
-        <div className="container discover-layout">
-          <div className="discover-copy"><Eyebrow>VOCÊ VAI SABER ONDE COMEÇAR</Eyebrow><h2>Em 2h30, pare de perguntar <em>“por onde eu começo?”</em></h2><div className="check-list">{discoveries.map((item) => <p key={item}><span>✓</span>{item}</p>)}</div></div>
-          <DiagnosticPanel />
-        </div>
-      </section>
+    <section className="section discover"><div className="container">
+      <Eyebrow>O QUE VOCÊ VAI DESCOBRIR</Eyebrow><div className="section-head"><h2>Venda tratada do jeito que dev aprende: <em>estrutura, diagnóstico e execução.</em></h2><p>Sem depender de audiência. Sem virar personagem. Sem esconder o preço atrás de uma call.</p></div>
+      <div className="discover-grid">{discoveries.map(([title, text], i) => <article key={title}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
+    </div></section>
 
-      <section className="section how">
-        <div className="container">
-          <div className="center-heading"><Eyebrow>SEM PRECISAR ENTENDER ERP</Eyebrow><h2>Você só precisa responder sobre <em>a sua empresa.</em></h2></div>
-          <div className="steps">{[
-            ["01", "Responda ao quiz", "Perguntas simples sobre caixa, estoque, vendas e fiscal."],
-            ["02", "Enxergue os vazamentos", "O diagnóstico mostra onde você perde controle e estima a hemorragia."],
-            ["03", "Descubra o primeiro passo", "Saia sabendo qual furo atender e quais ações iniciar."],
-          ].map(([n, title, text]) => <article key={n}><span>{n}</span><div className="step-icon" aria-hidden="true">{n === "01" ? "?" : n === "02" ? "⌁" : "→"}</div><h3>{title}</h3><p>{text}</p></article>)}</div>
-        </div>
-      </section>
+    <section className="section lots" id="lotes"><div className="container">
+      <div className="section-head light"><h2>O preço sobe. <em>O conteúdo não.</em></h2><p>O Lote 1 existe pra quem reconhece rápido o problema que está travando a venda.</p></div>
+      <div className="lot-grid"><article className="current"><p><i /> ABERTO AGORA</p><span>LOTE 1</span><strong>R$ 47</strong><small>Vagas limitadas</small></article><article><p>PRÓXIMO</p><span>LOTE 2</span><strong>R$ 67</strong><small>Quando o Lote 1 esgotar</small></article><article><p>FINAL</p><span>LOTE 3</span><strong>R$ 97</strong><small>Últimas 48h antes do evento</small></article></div>
+      <TrackLink source="lotes">GARANTIR MINHA VAGA NO LOTE 1</TrackLink>
+    </div></section>
 
-      <section className="section beliefs">
-        <div className="container beliefs-layout">
-          <div><Eyebrow light>VOCÊ NÃO FALHOU. O CAMINHO FALHOU.</Eyebrow><h2>Talvez tenham feito você começar <em>pelo lugar errado.</em></h2><p className="belief-intro">Mais um login não conserta uma operação que ninguém ajudou a diagnosticar.</p></div>
-          <div className="belief-cards">{[
-            ["Você não falhou porque ‘não tem cabeça para sistema’.", "Sistema genérico sem implantação costuma virar abandono."],
-            ["Ter tudo na cabeça não é controle. É risco.", "Se a empresa para quando você sai, ela ainda depende demais de você."],
-            ["O caos não espera o movimento acalmar.", "Ele diminui quando você descobre o que organizar primeiro."],
-          ].map(([title, text], i) => <article key={title}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
-        </div>
-        <p className="belief-closer">Diagnóstico vem antes da solução.</p>
-      </section>
+    <section className="section expert" id="matheus"><div className="container expert-layout">
+      <div className="expert-photo"><img src={`${A}expert-authority.webp`} alt="Retrato editorial de Matheus Gomes em ambiente tecnológico" loading="lazy" /><span>13 empresas<br />vendidas</span></div>
+      <div><Eyebrow>QUEM CONDUZ</Eyebrow><h2>Matheus Gomes fala código e venda <em>com a mesma fluência.</em></h2><p>Matheus é programador desde a adolescência. Construiu um grupo de 13 empresas e vendeu todas em 2023, num processo de M&amp;A que fechou um ciclo de mais de uma década.</p><p>No caminho, vendeu apps, sistemas e serviços pra todo tipo de cliente. A lição que ficou não foi técnica: em todas as vendas, do primeiro contrato ao exit final, o que decidiu o jogo foi a oferta, nunca o código.</p><p>Hoje ele ensina exatamente isso, do jeito que dev entende: com processo.</p></div>
+    </div></section>
 
-      <section className="section live-class" id="aula">
-        <div className="container">
-          <div className="heading-split"><div><Eyebrow>A AULA</Eyebrow><h2>Não é palestra motivacional. <em>É diagnóstico aplicado à sua empresa.</em></h2></div><p>Uma aula ao vivo e prática para donos de PMEs descobrirem onde o dinheiro está vazando e qual furo precisa ser tampado primeiro. Você olha para sua realidade e responde com honestidade.</p></div>
-          <div className="class-band">{["Aula ao vivo", "2h30 de duração", "Quiz aplicado", "Demonstração real", "Diagnóstico", "3 ações práticas"].map((item, i) => <span key={item}><b>{String(i + 1).padStart(2, "0")}</b>{item}</span>)}</div>
-          <div className="modules"><div className="module-title"><small>CONTEÚDO DA AULA</small><h3>O que você vai aprender</h3></div>{modules.map(([n, title, text]) => <article key={n}><span>{n}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div>
-        </div>
-      </section>
+    <section className="section truths"><div className="container"><Eyebrow>QUATRO VERDADES INCÔMODAS</Eyebrow><div className="truth-list">{truths.map(([title, text], i) => <article key={title}><span>{String(i + 1).padStart(2, "0")}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div></div></section>
 
-      <section className="section mentor" id="wellington">
-        <div className="container mentor-layout">
-          <div className="profile-photo"><PhotoPlaceholder kind="profile" /><div className="profile-seal"><strong>2018</strong><span>gestão testada<br />na própria empresa</span></div></div>
-          <div className="mentor-copy"><Eyebrow>QUEM CONDUZ</Eyebrow><h2>Wellington não fala de gestão como palestrante. <em>Ele fala como empresário.</em></h2><div className="timeline">{timeline.map(([year, title, text]) => <article key={year}><span>{year}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div><a className="text-link" href="https://www.instagram.com/wellington.ltda/" target="_blank" rel="noreferrer">Conheça @wellington.ltda <span>↗</span></a></div>
-        </div>
-      </section>
+    <section className="section method"><div className="method-bg"><img src={`${A}expert-method.webp`} alt="Matheus Gomes analisando um sistema abstrato de quatro módulos" loading="lazy" /></div><div className="container method-content"><div><Eyebrow>O MÉTODO</Eyebrow><h2>Quatro alavancas.<br /><em>Uma oferta.</em></h2><p>Quando uma quebra, todo o sistema perde força.</p></div><div className="lever-grid"><article><span>01</span><h3>Promessa</h3><p>O resultado que o cliente entende e deseja.</p></article><article><span>02</span><h3>Público</h3><p>Quem tem o problema e valoriza a solução.</p></article><article><span>03</span><h3>Preço</h3><p>Valor ancorado no impacto, não nas suas horas.</p></article><article><span>04</span><h3>Experiência</h3><p>O caminho sem atrito entre interesse e pagamento.</p></article></div></div></section>
 
-      <section className="section proof">
-        <div className="container"><Eyebrow>PROVAS DE OPERAÇÃO</Eyebrow><div className="heading-split"><h2>Antes de virar uma oferta, o MaisControl precisou <em>funcionar no mundo real.</em></h2><p>Sem estrelas inventadas. Sem personagens fictícios. Apenas fatos operacionais apresentados com transparência.</p></div><div className="proof-grid">{evidence.map(([title, text], i) => <article key={title}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div><p className="evidence-note">Os primeiros depoimentos formais da nova turma ainda serão coletados. Por isso, esta página utiliza apenas fatos e provas operacionais verificáveis.</p></div>
-      </section>
+    <section className="section operation"><div className="container"><Eyebrow>COMO FUNCIONA</Eyebrow><div className="section-head"><h2>Intensivo, ao vivo e aplicado <em>à sua oferta.</em></h2><p>São 2 noites online, de 120 minutos cada. Você entra no grupo do WhatsApp, recebe o material e participa com espaço pra perguntas. Perdeu uma parte? O replay fica disponível por 48 horas.</p></div><div className="operation-grid"><article><span>01</span><h3>Entre ao vivo</h3><p>Duas noites, quatro blocos por noite e perguntas no fechamento.</p></article><article><span>02</span><h3>Trabalhe na sua oferta</h3><p>Na segunda noite, você preenche o exercício guiado — não assiste só teoria.</p></article><article><span>03</span><h3>Saia com direção</h3><p>Oferta esboçada e plano de 30 dias pra buscar a primeira venda.</p></article></div></div></section>
 
-      <section className="section bonus">
-        <div className="container"><div className="center-heading"><Eyebrow>ENTREGÁVEIS</Eyebrow><h2>Ferramentas para você <em>não voltar ao escuro.</em></h2></div><div className="bonus-grid">{bonuses.map(([title, text, tag], i) => <article key={title}><div className={`bonus-mock mock-${i}`}><span>{tag}</span><i aria-hidden="true" /></div><small>BÔNUS {String(i + 1).padStart(2, "0")}</small><h3>{title}</h3><p>{text}</p></article>)}</div></div>
-      </section>
+    <section className="section program" id="programa"><div className="container"><Eyebrow>PROGRAMA COMPLETO</Eyebrow><h2>Duas noites. <em>Do diagnóstico à construção.</em></h2><div className="night-grid">{program.map((night) => <article key={night.night}><header><span>{night.night}</span><h3>{night.title}</h3><b>120 MIN</b></header><div>{night.blocks.map(([time, title, text], i) => <section key={title}><span>{String(i + 1).padStart(2, "0")}</span><div><small>{time}</small><h4>{title}</h4><p>{text}</p></div></section>)}</div></article>)}</div></div></section>
 
-      <section className="section urgency"><div className="container urgency-layout"><div><Eyebrow light>O CUSTO DE ADIAR</Eyebrow><h2>Esperar o movimento acalmar é esperar o balde <em>parar de vazar sozinho.</em></h2></div><div className="urgency-copy"><p>Cada mês no escuro pode custar dinheiro.</p><p>Trocar de sistema sem diagnóstico pode virar mais uma tentativa abandonada.</p><p>Sua equipe não opera melhor se tudo continua preso na sua cabeça.</p><strong>Você não precisa resolver toda a empresa hoje. Precisa descobrir onde começar.</strong></div></div></section>
+    <section className="section cost"><div className="container cost-layout"><div><Eyebrow>FAZ A CONTA COMIGO</Eyebrow><h2>Quanto custa continuar polindo <em>o que ninguém compra?</em></h2></div><div><p>Quantos meses o seu produto está pronto e parado? Quantas horas de refactor você investiu depois do lançamento? Agora a pergunta que dói: quantas horas você investiu na oferta dele?</p><p>A IA está deixando todo mundo capaz de construir. Em 2026, código virou commodity. O que sobrou de diferencial é exatamente o que este workshop ensina.</p><strong>Duas noites. R$ 47. O custo de continuar no ciclo é maior.</strong><TrackLink source="custo">QUERO SAIR DO CICLO · GARANTIR VAGA</TrackLink></div></div></section>
 
-      <section className="section audience"><div className="container"><div className="center-heading"><Eyebrow>PARA QUEM É</Eyebrow><h2>Esta decisão faz sentido <em>para a sua empresa?</em></h2></div><div className="audience-grid"><article className="yes"><p className="audience-label"><span>✓</span> É PARA VOCÊ SE...</p><ul>{forYou.map((item) => <li key={item}>{item}</li>)}</ul></article><article className="no"><p className="audience-label"><span>×</span> NÃO É PARA VOCÊ SE...</p><ul>{notForYou.map((item) => <li key={item}>{item}</li>)}</ul></article></div></div></section>
+    <section className="section audience"><div className="container"><Eyebrow>É PRA VOCÊ?</Eyebrow><div className="section-head"><h2>Se você sabe construir, <em>mas ainda não sabe vender.</em></h2><p>Não importa se o código veio de anos de estudo ou de uma conversa com IA. O gargalo agora é transformar capacidade em oferta.</p></div><div className="audience-grid">{audience.map((item, i) => <article key={item}><span>0{i + 1}</span><p>{item}</p></article>)}</div></div></section>
 
-      <section className="section comparison"><div className="container"><Eyebrow light>O DIFERENCIAL</Eyebrow><div className="heading-split light"><h2>A maioria começa vendendo sistema. <em>O MaisControl começa mostrando o problema.</em></h2><p>Você não começa trocando tudo. Começa descobrindo o que precisa mudar primeiro.</p></div><div className="comparison-grid"><article><small>CAMINHO COMUM</small>{["Compra um sistema", "Recebe um login", "Tenta configurar sozinho", "Mantém a planilha paralela", "A equipe não adere", "Abandona"].map((item) => <p key={item}><span>×</span>{item}</p>)}</article><article className="mc-path"><small>CAMINHO MAISCONTROL</small>{["Diagnóstico", "Clareza", "Maior furo", "Ordem de prioridade", "Decisão consciente", "Implantação acompanhada, se fizer sentido"].map((item) => <p key={item}><span>✓</span>{item}</p>)}</article></div></div></section>
+    <section className="section difference"><div className="container difference-layout"><div><Eyebrow>A TERCEIRA FIGURA</Eyebrow><h2>Nem guru sem terminal. Nem dev que só vendeu curso.</h2></div><div><p>Quem ensina venda pra dev, em geral, é o guru de marketing que nunca abriu um terminal ou o dev que nunca vendeu nada além de curso.</p><p>Matheus é a terceira figura: o programador que construiu 13 empresas e vendeu todas. Que fala Lambda, WebSocket e fila com a mesma fluência com que fala proposta, margem e contrato.</p><blockquote>“Seu stack não importa pra venda.”</blockquote><p>Neste workshop você aprende o processo comercial de quem sentou na mesa de M&amp;A e ouviu zero perguntas sobre código.</p></div></div></section>
 
-      <section className="section offer" id="checkout"><div className="container offer-layout"><div className="offer-copy"><Eyebrow light>A PRÓXIMA TURMA AO VIVO</Eyebrow><h2>Por R$29,90, você compra clareza antes de investir em <em>qualquer implantação.</em></h2><p>Como Ter Controle Total da Sua Empresa em 7 Dias — descubra onde o dinheiro está vazando e tampe os furos antes que o balde esvazie.</p><div className="offer-list">{offerItems.map((item) => <span key={item}><i>✓</i>{item}</span>)}</div></div><article className="price-card"><p className="availability"><i /> Próxima turma ao vivo</p><small>INVESTIMENTO ÚNICO</small><div className="big-price"><span>R$</span><strong>29</strong><b>,90</b></div><p className="date-note">{siteConfig.eventTime}.</p><CTA source="offer">GARANTIR MINHA VAGA POR R$29,90</CTA><p className="secure-line dark"><span>✓</span> Aula ao vivo <i /> Compra segura <i /> Garantia de 7 dias</p><div className="checkout-placeholder"><span>Checkout será conectado aqui</span><small>Todos os botões já usam a mesma configuração.</small></div></article></div></section>
+    <section className="section guarantee"><div className="container guarantee-layout"><div className="guarantee-seal"><strong>7</strong><span>DIAS</span></div><div><Eyebrow>RISCO ZERO</Eyebrow><h2>Você entra protegido <em>por uma garantia simples.</em></h2><p>{profileCopy.guarantee}</p></div></div></section>
 
-      <section className="section guarantee"><div className="container guarantee-layout"><div className="guarantee-badge"><span>7</span><strong>DIAS</strong><small>GARANTIA<br />INCONDICIONAL</small></div><div><Eyebrow>DECIDA COM TRANQUILIDADE</Eyebrow><h2>Você tem 7 dias para ver se <em>a entrega faz sentido.</em></h2><p>Assista à aula. Conheça o diagnóstico. Se entender que não foi para você, solicite o reembolso dentro de 7 dias e receba de volta o valor pago.</p><strong>Sem pegadinha. Sem precisar provar nada.</strong></div></div></section>
+    <section className="section faq" id="faq"><div className="container faq-layout"><div><Eyebrow>FAQ</Eyebrow><h2>Sem dúvida escondida <em>atrás de uma call.</em></h2></div><div>{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div></div></section>
 
-      <section className="section faq" id="faq"><div className="container faq-layout"><div className="faq-heading"><Eyebrow>PERGUNTAS FREQUENTES</Eyebrow><h2>Clareza antes de <em>dar o primeiro passo.</em></h2><p>O que a aula entrega, como funciona e o que não está incluído.</p></div><div className="faq-list">{faqs.map(([question, answer], index) => { const isOpen = openFaq === index; return <article key={question} className={isOpen ? "open" : ""}><h3><button type="button" aria-expanded={isOpen} aria-controls={`faq-${index}`} onClick={() => { setOpenFaq(isOpen ? null : index); track("faq_open", { question, open: !isOpen }); }}><span>{question}</span><b aria-hidden="true">+</b></button></h3><div className="faq-answer" id={`faq-${index}`}><p>{answer}</p></div></article>; })}</div></div></section>
+    <section className="closing" id="inscricao"><picture><source media="(max-width: 720px)" srcSet={`${A}expert-final-mobile.webp`} /><img src={`${A}expert-final-desktop.webp`} alt="Matheus Gomes em um ambiente gráfico que converge para uma oferta clara" loading="lazy" /></picture><div className="closing-shade" /><div className="container"><Eyebrow>LOTE 1 · R$ 47</Eyebrow><h2>O código já está pronto.<br /><em>Agora construa o que vende.</em></h2><p>2 noites ao vivo. Replay 48h. Garantia de 7 dias. Você sai com a sua oferta esboçada.</p><TrackLink source="final">GARANTIR MINHA VAGA AGORA · LOTE 1 · R$ 47</TrackLink></div></section>
 
-      <section className="final-cta"><div className="final-lines" aria-hidden="true" /><div className="container"><Eyebrow light>COMECE PELO FURO</Eyebrow><h2>Você já tentou organizar sozinho. <em>Agora comece pelo diagnóstico.</em></h2><p>Entre na aula, descubra onde o dinheiro está vazando e saia com clareza sobre o primeiro furo que precisa ser tampado.</p><CTA source="final">GARANTIR MINHA VAGA POR R$29,90</CTA><small>Compra segura • Garantia incondicional de 7 dias</small></div></section>
+    <footer><div className="container"><a className="brand" href="#top"><span>&lt;/&gt;</span><strong>CÓDIGO QUE VENDE</strong></a><p>Workshop online com Matheus Gomes · © 2026</p></div></footer>
 
-      <footer><div className="container footer-top"><a className="brand" href="#inicio"><span className="brand-symbol">M+</span><span><strong>MaisControl</strong><small>gestão que começa pelo diagnóstico</small></span></a><div className="footer-links"><a href="https://maiscontrol.com.br" target="_blank" rel="noreferrer">Site oficial</a><a href="https://www.instagram.com/wellington.ltda/" target="_blank" rel="noreferrer">@wellington.ltda</a><a href="#legal">Termos de Uso</a><a href="#legal">Política de Privacidade</a></div></div><div className="container footer-bottom" id="legal"><p>Os resultados dependem da realidade, das decisões e da execução de cada empresa. Esta aula entrega diagnóstico e direção; não promete resultado financeiro garantido. Os links legais estão preparados para receber as páginas oficiais.</p><span>© 2026 MaisControl</span></div></footer>
-
-      <div className={`mobile-sticky${mobileCta ? " visible" : ""}`}><span>Aula ao vivo<strong>R$29,90</strong></span><CTA source="mobile" small>GARANTIR VAGA</CTA></div>
-    </main>
-  );
+    <div className={`mobile-cta${showMobile ? " visible" : ""}`}><span>LOTE 1<strong>R$ 47</strong></span><TrackLink source="mobile" className="cta small">GARANTIR VAGA</TrackLink></div>
+  </main>;
 }

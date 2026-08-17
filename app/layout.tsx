@@ -7,28 +7,20 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
-  const socialImage = `${origin}/og.png`;
-
   return {
-    title: "Diagnóstico dos 4 Furos do Balde | MaisControl",
-    description: "Descubra onde sua empresa está perdendo dinheiro e qual problema resolver primeiro em uma aula prática de 2h30 com Wellington Camaleão.",
+    metadataBase: new URL(origin),
+    title: "Workshop Código que Vende | Matheus Gomes",
+    description: "Em 2 noites ao vivo, transforme sua capacidade técnica em uma oferta com público, promessa, preço e plano de 30 dias para a primeira venda.",
     openGraph: {
-      title: "Diagnóstico dos 4 Furos do Balde | MaisControl",
-      description: "Sua empresa fatura. Descubra onde o dinheiro está vazando e por onde começar.",
-      type: "website",
-      locale: "pt_BR",
-      url: origin,
-      images: [{ url: socialImage, width: 1200, height: 630, alt: "Diagnóstico dos 4 Furos do Balde — aula ao vivo MaisControl" }],
+      title: "Workshop Código que Vende",
+      description: "Ninguém compra produto. Compram oferta. Em 2 noites ao vivo, você monta a sua.",
+      type: "website", locale: "pt_BR", url: origin,
+      images: [{ url: "/og.png", width: 1200, height: 628, alt: "Workshop Código que Vende com Matheus Gomes" }],
     },
-    twitter: {
-      card: "summary_large_image",
-      title: "Diagnóstico dos 4 Furos do Balde | MaisControl",
-      description: "Sua empresa fatura. Descubra onde o dinheiro está vazando e por onde começar.",
-      images: [socialImage],
-    },
+    twitter: { card: "summary_large_image", title: "Workshop Código que Vende", description: "Em 2 noites ao vivo, você monta a sua oferta.", images: ["/og.png"] },
   };
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="pt-BR"><body>{children}</body></html>;
+  return <html lang="pt-BR"><head><link rel="preload" as="image" href="/assets/gpt/final/hero-desktop.webp" media="(min-width: 721px)" /><link rel="preload" as="image" href="/assets/gpt/final/hero-mobile.webp" media="(max-width: 720px)" /></head><body>{children}</body></html>;
 }
