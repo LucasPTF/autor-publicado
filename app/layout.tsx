@@ -7,20 +7,36 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
+
   return {
     metadataBase: new URL(origin),
-    title: "Workshop Código que Vende | Matheus Gomes",
-    description: "Em 2 noites ao vivo, transforme sua capacidade técnica em uma oferta com público, promessa, preço e plano de 30 dias para a primeira venda.",
+    title: "Ativação SD — Sistema Destrave | Milla Souza",
+    description:
+      "Conheça uma rota de Tráfego Livre com Robô de Leads e IA Funcionária para começar sem depender de anúncios ou conteúdo em massa.",
     openGraph: {
-      title: "Workshop Código que Vende",
-      description: "Ninguém compra produto. Compram oferta. Em 2 noites ao vivo, você monta a sua.",
-      type: "website", locale: "pt_BR", url: origin,
-      images: [{ url: "/og.png", width: 1200, height: 628, alt: "Workshop Código que Vende com Matheus Gomes" }],
+      title: "Ativação SD — Sistema Destrave",
+      description: "Uma nova rota para quem já tentou vender no digital e cansou de pagar para testar.",
+      type: "website",
+      locale: "pt_BR",
+      url: origin,
+      images: [{ url: "/milla/og.png", width: 1733, height: 908, alt: "Ativação SD com Milla Souza" }],
     },
-    twitter: { card: "summary_large_image", title: "Workshop Código que Vende", description: "Em 2 noites ao vivo, você monta a sua oferta.", images: ["/og.png"] },
+    twitter: {
+      card: "summary_large_image",
+      title: "Ativação SD — Sistema Destrave",
+      description: "Tráfego Livre, Robô de Leads e IA Funcionária.",
+      images: ["/milla/og.png"],
+    },
   };
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="pt-BR"><head><link rel="preload" as="image" href="/assets/gpt/final/hero-desktop.webp" media="(min-width: 721px)" /><link rel="preload" as="image" href="/assets/gpt/final/hero-mobile.webp" media="(max-width: 720px)" /></head><body>{children}</body></html>;
+  return (
+    <html lang="pt-BR">
+      <head>
+        <link rel="preload" as="image" href="/milla/milla-hero.png" />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
 }
