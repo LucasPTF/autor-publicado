@@ -27,6 +27,17 @@ function Label({ number, children }: { number: string; children: React.ReactNode
   return <p className="section-label"><span>{number}</span>{children}</p>;
 }
 
+function Brand({ priority = false }: { priority?: boolean }) {
+  return (
+    <a className="brand" href="#top" aria-label="Walter Cincinatto — início">
+      <span className="brand-logo" aria-hidden="true">
+        <Image src="/walter/logo-walter.png" alt="" width={56} height={56} priority={priority} sizes="56px" />
+      </span>
+      <span><strong>WALTER CINCINATTO</strong><small>VENDEDOR MEMORÁVEL</small></span>
+    </a>
+  );
+}
+
 export function LandingPage({ hero }: { hero: HeroKey }) {
   const heroCopy = heroes[hero];
   const eventSchema = {
@@ -44,10 +55,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }} />
 
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="Vendedor Memorável — início">
-          <span className="brand-mark">V</span>
-          <span><strong>VENDEDOR</strong><small>MEMORÁVEL</small></span>
-        </a>
+        <Brand priority />
         <nav aria-label="Navegação principal">
           <a href="#metodo">O método</a>
           <a href="#programa">A aula</a>
@@ -69,10 +77,10 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
             <p className="hero-sub">{heroCopy.subheadline}</p>
             <Cta source={`hero-${hero}`}>{heroCopy.cta}</Cta>
             <p className="support-line">Aula ao vivo com Walter Cincinatto. Vagas limitadas.</p>
-            <div className="hero-method-strip" aria-label="Os 3 Passos Antes da Venda">
-              <span><b>01</b> Cliente</span>
-              <span><b>02</b> Valor</span>
-              <span><b>03</b> Processo</span>
+            <div className="hero-method-strip" role="list" aria-label="Os 3 Passos Antes da Venda">
+              <span role="listitem"><b>01</b> Cliente</span>
+              <span role="listitem"><b>02</b> Valor</span>
+              <span role="listitem"><b>03</b> Processo</span>
             </div>
           </div>
         </div>
@@ -147,6 +155,35 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
         </div>
       </section>
 
+      <section className="video-story section-paper" aria-labelledby="video-walter-title">
+        <div className="shell video-story-grid">
+          <div className="video-story-copy">
+            <Label number="PLAY">UMA MENSAGEM DO WALTER</Label>
+            <div className="video-logo-lockup" aria-hidden="true">
+              <Image src="/walter/logo-walter.png" alt="" width={160} height={160} sizes="160px" />
+            </div>
+            <h2 id="video-walter-title">Ouça do próprio Walter por que método vem antes do improviso.</h2>
+            <p>Uma conversa direta para quem quer transformar esforço comercial em uma venda mais consciente, consistente e memorável.</p>
+            <Cta source="video-walter">QUERO CONHECER O MÉTODO</Cta>
+          </div>
+          <figure className="video-card">
+            {/* Os arquivos fornecidos já possuem legendas incorporadas à imagem. */}
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <video
+              controls
+              preload="metadata"
+              playsInline
+              poster="/walter/criativo-walter-poster.jpg"
+              aria-label="Vídeo de Walter Cincinatto sobre o método Vendedor Memorável"
+            >
+              <source src="/walter/criativo-walter.mp4" type="video/mp4" />
+              Seu navegador não consegue reproduzir este vídeo.
+            </video>
+            <figcaption><strong>Walter Cincinatto</strong><span>50 segundos · legendas incorporadas</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
       <section className="expanded section-paper">
         <div className="shell narrow-copy">
           <Label number="04">A TRANSFORMAÇÃO</Label>
@@ -207,6 +244,33 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
         </div>
       </section>
 
+      <section className="testimonial section-ink" aria-labelledby="testimonial-title">
+        <div className="shell testimonial-grid">
+          <figure className="video-card video-card-light">
+            {/* Os arquivos fornecidos já possuem legendas incorporadas à imagem. */}
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <video
+              controls
+              preload="metadata"
+              playsInline
+              poster="/walter/depoimento-pamela-poster.jpg"
+              aria-label="Depoimento em vídeo de Pâmela Amorim"
+            >
+              <source src="/walter/depoimento-pamela-amorim.mp4" type="video/mp4" />
+              Seu navegador não consegue reproduzir este vídeo.
+            </video>
+            <figcaption><strong>Pâmela Amorim</strong><span>54 segundos · legendas incorporadas</span></figcaption>
+          </figure>
+          <div className="testimonial-copy">
+            <Label number="REAL">DEPOIMENTO</Label>
+            <p className="testimonial-kicker">UMA EXPERIÊNCIA REAL</p>
+            <h2 id="testimonial-title">Ouça quem viveu o processo.</h2>
+            <p>Sem resumo e sem promessa inventada: o relato completo de Pâmela está disponível para você assistir antes de tomar sua decisão.</p>
+            <Cta source="depoimento-pamela">QUERO GARANTIR MINHA VAGA</Cta>
+          </div>
+        </div>
+      </section>
+
       <section className="difference section-accent">
         <div className="shell difference-grid">
           <div><Label number="11">UM DIFERENCIAL ÚNICO</Label><h2>A fundação vem antes do telhado.</h2></div>
@@ -229,7 +293,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
         </div>
       </section>
 
-      <footer><div className="shell"><a className="brand" href="#top"><span className="brand-mark">V</span><span><strong>VENDEDOR</strong><small>MEMORÁVEL</small></span></a><p>Aula online com Walter Cincinatto · © 2026</p><p>Resultados dependem da aplicação individual do conteúdo.</p></div></footer>
+      <footer><div className="shell"><Brand /><p>Aula online com Walter Cincinatto · © 2026</p><p>Resultados dependem da aplicação individual do conteúdo.</p></div></footer>
     </main>
   );
 }
