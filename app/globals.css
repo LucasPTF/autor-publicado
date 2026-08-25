@@ -276,7 +276,7 @@ footer p:last-child { max-width: 330px; margin-left: auto; text-align: right; li
   .topbar nav, .topbar .cta { display: none; }
   .hero { padding-top: 76px; }
   .hero-layout { padding-top: 72px; }
-  .hero-photo img { object-position: 66% center; }
+  .hero-photo img { object-position: 78% center; }
   .hero-photo-shade { background: linear-gradient(90deg, rgba(20,36,59,.97), rgba(20,36,59,.72)), linear-gradient(0deg, rgba(20,36,59,.96), transparent 44%); }
   .hero-copy { width: 100%; }
   .hero h1 { font-size: var(--display-size); }
