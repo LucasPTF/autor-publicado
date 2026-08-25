@@ -23,8 +23,8 @@ function Cta({ children, source, light = false }: { children: React.ReactNode; s
   );
 }
 
-function Label({ number, children, icon = false }: { number: string; children: React.ReactNode; icon?: boolean }) {
-  return <p className="section-label"><span className={icon ? "label-icon" : undefined}>{number}</span>{children}</p>;
+function Label({ children }: { children: React.ReactNode }) {
+  return <p className="section-label">{children}</p>;
 }
 
 function Brand({ priority = false }: { priority?: boolean }) {
@@ -98,7 +98,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
 
       <section className="manifesto section-dark">
         <div className="shell manifesto-grid">
-          <Label number="01">A TRANSFORMAÇÃO</Label>
+          <Label>A TRANSFORMAÇÃO</Label>
           <div>
             <p className="manifesto-lead">Você não precisa carregar mais peso.<br /><em>Precisa de uma base que sustente o crescimento.</em></p>
             <div className="transformation-list">
@@ -115,7 +115,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
 
       <section className="discover section-paper">
         <div className="shell">
-          <Label number="02">O QUE VOCÊ VAI DESCOBRIR</Label>
+          <Label>O QUE VOCÊ VAI DESCOBRIR</Label>
           <div className="section-heading">
             <h2>O que decide a venda acontece <em>antes</em> da técnica.</h2>
             <p>Você vai enxergar por que o que já tentou não sustentou o caixa e qual é a ordem que vem antes de vender.</p>
@@ -148,7 +148,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
             <span>VENDAS NO CORPO.<br />NA PRÁTICA.</span>
           </div>
           <div>
-            <Label number="03">APRESENTAMOS: WALTER CINCINATTO</Label>
+            <Label>APRESENTAMOS: WALTER CINCINATTO</Label>
             <h2>Autoridade de chão.<br /><em>Não de palco.</em></h2>
             <p>Walter começou vendendo na rua. Aprendeu vendas no corpo, no dia a dia, no olho no olho.</p>
             <p>Depois empreendeu. Cresceu. E quase quebrou por depender de poucos clientes grandes.</p>
@@ -162,7 +162,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
       <section className="video-story section-paper" aria-labelledby="video-walter-title">
         <div className="shell video-story-grid">
           <div className="video-story-copy">
-            <Label number="▶" icon>UMA MENSAGEM DO WALTER</Label>
+            <Label>UMA MENSAGEM DO WALTER</Label>
             <div className="video-logo-lockup" aria-hidden="true">
               <Image src="/walter/logo-walter.png" alt="" width={160} height={160} sizes="160px" />
             </div>
@@ -190,7 +190,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
 
       <section className="expanded section-paper">
         <div className="shell narrow-copy">
-          <Label number="04">A TRANSFORMAÇÃO</Label>
+          <Label>A TRANSFORMAÇÃO</Label>
           <h2>Você se mata.<br /><em>Mas esforço não é plano de crescimento.</em></h2>
           <div className="editorial-copy">
             <p>Você trabalha mais a cada ano. Chega cedo, sai tarde, resolve tudo.</p>
@@ -205,7 +205,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
 
       <section className="foundations section-accent" id="metodo">
         <div className="shell">
-          <Label number="05">O QUE VOCÊ PRECISA ENTENDER PRIMEIRO</Label>
+          <Label>O QUE VOCÊ PRECISA ENTENDER PRIMEIRO</Label>
           <div className="section-heading light-heading"><h2>Quatro verdades que desmontam o jeito antigo de crescer.</h2><p>Quando a base entra, o esforço para de se perder antes de chegar ao caixa.</p></div>
           <div className="foundation-grid">{foundations.map(([number, title, text]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
         </div>
@@ -213,14 +213,14 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
 
       <section className="class-intro section-paper">
         <div className="shell class-intro-grid">
-          <div><Label number="06">A AULA VENDEDOR MEMORÁVEL</Label><h2>Não é uma lista de técnicas soltas.</h2></div>
+          <div><Label>A AULA VENDEDOR MEMORÁVEL</Label><h2>Não é uma lista de técnicas soltas.</h2></div>
           <div><p>É uma aula ao vivo pro dono de negócio que cansou de empilhar coisa e ver a empresa parada no mesmo lugar.</p><p>Em poucas horas, você entende por que o seu esforço não está virando crescimento e aprende os 3 Passos que vêm antes da venda. A base que faz tudo que você já tem finalmente funcionar.</p><p>É ao vivo, com espaço pra tirar dúvida. Não é aula gravada.</p></div>
         </div>
       </section>
 
       <section className="program section-dark" id="programa">
         <div className="shell">
-          <Label number="07">DURANTE A AULA AO VIVO</Label>
+          <Label>DURANTE A AULA AO VIVO</Label>
           <div className="section-heading light-heading"><h2>Da origem do vazamento ao primeiro movimento prático.</h2><p>Quatro blocos, uma sequência e clareza para aplicar já na próxima venda.</p></div>
           <div className="program-list">{classBlocks.map(([block, title, text], index) => <article key={block}><span>{block}</span><b>{String(index + 1).padStart(2, "0")}</b><div><h3>{title}</h3><p>{text}</p></div></article>)}</div>
         </div>
@@ -228,14 +228,14 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
 
       <section className="gifts section-paper">
         <div className="shell gifts-grid">
-          <div className="gifts-copy"><Label number="08">PRESENTES EXCLUSIVOS</Label><h2>A aula termina.<br /><em>O material fica.</em></h2><p>Ferramentas simples para continuar organizando a venda depois do encontro ao vivo.</p></div>
+          <div className="gifts-copy"><Label>PRESENTES EXCLUSIVOS</Label><h2>A aula termina.<br /><em>O material fica.</em></h2><p>Ferramentas simples para continuar organizando a venda depois do encontro ao vivo.</p></div>
           <div className="gift-list">{gifts.map(([title, text], index) => <article key={title}><span>0{index + 1}</span><div><h3>{title}</h3><p>{text}</p></div><b>INCLUSO</b></article>)}</div>
         </div>
       </section>
 
       <section className="essential section-ink">
         <div className="shell essential-grid">
-          <div><Label number="09">POR QUE ISSO É ESSENCIAL</Label><h2>O custo de continuar igual não aparece numa linha da planilha.</h2></div>
+          <div><Label>POR QUE ISSO É ESSENCIAL</Label><h2>O custo de continuar igual não aparece numa linha da planilha.</h2></div>
           <div className="essential-list">{essentials.map((item, index) => <p key={item}><span>0{index + 1}</span>{item}</p>)}</div>
         </div>
         <div className="shell essential-cta"><Cta source="essencial">QUERO PARAR DE EMPILHAR E COMEÇAR A CRESCER</Cta></div>
@@ -243,7 +243,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
 
       <section className="audience section-paper">
         <div className="shell audience-grid">
-          <div><Label number="10">PARA QUEM FAZ SENTIDO</Label><h2>Pra quem cansou de ser o motor e o freio da própria empresa.</h2><p className="not-for"><strong>Não é pra quem</strong> quer fórmula mágica. Nem pra quem quer assistir e não aplicar nada.</p></div>
+          <div><Label>PARA QUEM FAZ SENTIDO</Label><h2>Pra quem cansou de ser o motor e o freio da própria empresa.</h2><p className="not-for"><strong>Não é pra quem</strong> quer fórmula mágica. Nem pra quem quer assistir e não aplicar nada.</p></div>
           <div className="check-list">{audience.map((item) => <p key={item}><span aria-hidden="true">✓</span>{item}</p>)}</div>
         </div>
       </section>
@@ -266,7 +266,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
             <figcaption><strong>Pâmela Amorim</strong></figcaption>
           </figure>
           <div className="testimonial-copy">
-            <Label number="▶" icon>DEPOIMENTO</Label>
+            <Label>DEPOIMENTO</Label>
             <p className="testimonial-kicker">UMA EXPERIÊNCIA REAL</p>
             <h2 id="testimonial-title">Ouça quem viveu o processo.</h2>
             <p>Sem resumo e sem promessa inventada: o relato completo de Pâmela está disponível para você assistir antes de tomar sua decisão.</p>
@@ -277,14 +277,14 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
 
       <section className="difference section-accent">
         <div className="shell difference-grid">
-          <div><Label number="11">UM DIFERENCIAL ÚNICO</Label><h2>A fundação vem antes do telhado.</h2></div>
+          <div><Label>UM DIFERENCIAL ÚNICO</Label><h2>A fundação vem antes do telhado.</h2></div>
           <div><p>O Método VENCER não começa pelo script, nem manda você fazer mais.</p><p>Começa pela base. São os 3 Passos Antes da Venda: primeiro o cliente, depois o valor, depois o processo. A técnica é a quarta coisa, e é por isso que ela sozinha nunca resolveu o seu caixa.</p><div className="method-order"><span>CLIENTE</span><i>→</i><span>VALOR</span><i>→</i><span>PROCESSO</span><i>→</i><span>TÉCNICA</span></div></div>
         </div>
       </section>
 
       <section className="faq section-paper" id="faq">
         <div className="shell faq-grid">
-          <div><Label number="12">DÚVIDAS FREQUENTES</Label><h2>Antes de garantir a sua vaga.</h2><div className="guarantee-seal"><strong>7</strong><span>DIAS DE<br />GARANTIA</span></div></div>
+          <div><Label>DÚVIDAS FREQUENTES</Label><h2>Antes de garantir a sua vaga.</h2><div className="guarantee-seal"><strong>7</strong><span>DIAS DE<br />GARANTIA</span></div></div>
           <div className="faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div>
         </div>
       </section>
