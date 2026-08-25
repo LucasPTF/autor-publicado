@@ -1,32 +1,32 @@
 export type HeroKey = "a1" | "a2" | "a3" | "a4" | "a5";
 
-export const heroes: Record<HeroKey, { headline: string; subheadline: string; cta: string }> = {
+export const heroes: Record<HeroKey, { headline: readonly string[]; subheadline: string; cta: string }> = {
   a1: {
-    headline: "O seu crescimento não travou por falta. Travou por excesso.",
+    headline: ["O seu crescimento não travou", "por falta. Travou", "por excesso."],
     subheadline:
       "Mais vendedor, mais tráfego, mais técnica. Sem uma base comercial, cada ‘mais’ só empilha caos. Nesta aula ao vivo, Walter Cincinatto mostra os 3 Passos que vêm antes da venda, e por onde o seu caixa volta a crescer.",
     cta: "QUERO MINHA VAGA NA AULA",
   },
   a2: {
-    headline: "Quer crescer? Para de fazer mais.",
+    headline: ["Quer crescer?", "Para de fazer", "mais."],
     subheadline:
       "Mais vendedor, mais tráfego, mais técnica, mais desconto. Cada ‘mais’ que você adiciona está travando o seu caixa. Nesta aula ao vivo, Walter te explica o porquê e mostra o que fazer no lugar.",
     cta: "QUERO ENTENDER ISSO",
   },
   a3: {
-    headline: "Você trabalha o dobro. E a empresa tem o mesmo tamanho.",
+    headline: ["Você trabalha o dobro.", "E a empresa tem", "o mesmo tamanho."],
     subheadline:
       "Esforço nunca foi plano de crescimento. Nesta aula ao vivo, Walter Cincinatto mostra o que realmente move o caixa de um negócio, e por onde começar pra sair da esteira.",
     cta: "QUERO DESTRAVAR ISSO",
   },
   a4: {
-    headline: "Você contratou vendedor, investiu em tráfego. E o caixa continua imprevisível.",
+    headline: ["Você contratou vendedor,", "investiu em tráfego. E o caixa", "continua imprevisível."],
     subheadline:
       "O problema não é quem vende, é a base que vem antes da venda. Nesta aula ao vivo, Walter mostra os 3 Passos que fazem qualquer vendedor e qualquer lead finalmente renderem.",
     cta: "QUERO VER OS 3 PASSOS",
   },
   a5: {
-    headline: "A venda do seu negócio se decide em 3 passos. E nenhum deles é o primeiro contato.",
+    headline: ["A venda do seu negócio", "se decide em 3 passos. E nenhum", "deles é o primeiro contato."],
     subheadline:
       "É por isso que contratar mais gente não resolveu. Nesta aula ao vivo, Walter Cincinatto mostra quais são os 3 Passos e em qual deles a sua venda está vazando.",
     cta: "QUERO VER OS 3 PASSOS",

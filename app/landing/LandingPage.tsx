@@ -66,14 +66,18 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
 
       <section className="hero">
         <div className="hero-photo" aria-hidden="true">
-          <Image src="/walter/walter-hero-v1.webp" alt="" fill priority sizes="100vw" />
+          <Image src="/walter/walter-hero-v2.webp" alt="" fill priority sizes="100vw" />
         </div>
         <div className="hero-photo-shade" aria-hidden="true" />
         <div className="hero-grid" aria-hidden="true" />
         <div className="shell hero-layout">
           <div className="hero-copy">
             <p className="live"><i /> AULA 100% AO VIVO <span>VAGAS LIMITADAS</span></p>
-            <h1>{heroCopy.headline}</h1>
+            <h1 className={`hero-title hero-title-${hero}`}>
+              {heroCopy.headline.map((line, index) => (
+                <span key={line}>{line}{index < heroCopy.headline.length - 1 ? " " : null}</span>
+              ))}
+            </h1>
             <p className="hero-sub">{heroCopy.subheadline}</p>
             <Cta source={`hero-${hero}`}>{heroCopy.cta}</Cta>
             <p className="support-line">Aula ao vivo com Walter Cincinatto. Vagas limitadas.</p>
@@ -136,7 +140,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
         <div className="shell expert-grid">
           <div className="expert-photo">
             <Image
-              src="/walter/walter-expert-v1.webp"
+              src="/walter/walter-expert-v2.webp"
               alt="Walter Cincinatto, empreendedor e especialista em vendas"
               fill
               sizes="(max-width: 720px) calc(100vw - 36px), 43vw"
