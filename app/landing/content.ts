@@ -1,88 +1,94 @@
-export type ProfileKey = "conscienciosidade" | "neuroticismo" | "abertura";
+export type HeroKey = "a1" | "a2" | "a3" | "a4" | "a5";
 
-export const profiles = {
-  conscienciosidade: {
-    headline: "Construí e vendi 13 empresas até entender um detalhe que muda tudo: ninguém compra produto. Compram oferta. Em 2 noites ao vivo, você monta a sua.",
-    subheadline: "O Workshop Código que Vende trata venda do jeito que você aprende: sistema, processo e prática. Você sai da segunda noite com a sua oferta esboçada e um plano de 30 dias pra primeira venda. Com Matheus Gomes, programador que construiu e vendeu 13 empresas.",
-    cta: "QUERO MONTAR MINHA OFERTA · R$ 47",
-    guarantee: "Garantia de entrega verificável: o programa das 2 noites está publicado nesta página, bloco a bloco. Se o conteúdo entregue não corresponder, devolvemos em 7 dias. Sem letra miúda.",
-    proof: "13 empresas construídas e vendidas. M&A concluído em 2023. Apps e sistemas vendidos ao longo de uma década. Tudo verificável, nada de print de tela.",
+export const heroes: Record<HeroKey, { headline: string; subheadline: string; cta: string }> = {
+  a1: {
+    headline: "O seu crescimento não travou por falta. Travou por excesso.",
+    subheadline:
+      "Mais vendedor, mais tráfego, mais técnica. Sem uma base comercial, cada ‘mais’ só empilha caos. Nesta aula ao vivo, Walter Cincinatto mostra os 3 Passos que vêm antes da venda, e por onde o seu caixa volta a crescer.",
+    cta: "QUERO MINHA VAGA NA AULA",
   },
-  neuroticismo: {
-    headline: "Você não precisa de audiência, não precisa virar influencer e não precisa largar o CLT. Precisa de uma oferta certa pro cliente certo. Em 2 noites, você monta a sua.",
-    subheadline: "O Workshop Código que Vende é o caminho seguro pra primeira renda própria: método passo a passo, exercício guiado ao vivo e plano de 30 dias que roda em paralelo ao seu emprego. Com Matheus Gomes, que vendeu 13 empresas começando com zero seguidores.",
-    cta: "COMEÇAR SEM SALTO NO ESCURO · R$ 47",
-    guarantee: "Garantia tripla: 7 dias de reembolso incondicional, replay de 48h se perder alguma noite, e suporte no grupo até o fim do evento. O risco é nosso.",
-    proof: "As primeiras empresas do Matheus foram vendidas sem audiência nenhuma: oferta certa, na mesa do cliente certo. É o mesmo caminho que o workshop ensina, sem exposição e sem palco.",
+  a2: {
+    headline: "Quer crescer? Para de fazer mais.",
+    subheadline:
+      "Mais vendedor, mais tráfego, mais técnica, mais desconto. Cada ‘mais’ que você adiciona está travando o seu caixa. Nesta aula ao vivo, Walter te explica o porquê e mostra o que fazer no lugar.",
+    cta: "QUERO ENTENDER ISSO",
   },
-  abertura: {
-    headline: "Parece loucura, mas a pior coisa que você pode fazer pelo seu produto agora é melhorar o código. Em 2 noites eu te mostro o que construir no lugar.",
-    subheadline: "Com IA construindo por todo mundo, código virou commodity. O Workshop Código que Vende ensina o diferencial que sobrou: a oferta. Método de quem vendeu 13 empresas, ensinado do jeito que dev aprende: por estrutura.",
-    cta: "QUERO ENTENDER O QUE FALTA · R$ 47",
-    guarantee: "Garantia de perspectiva nova: se depois das 2 noites você não enxergar seu produto de um jeito que nunca tinha visto, devolvemos o valor. Direto assim.",
-    proof: "A própria comunidade dev já chegou na conclusão: ‘o marketing é 90%, produto é 10%, as pessoas compram pela embalagem’. O workshop pega essa intuição solta e transforma em sistema aplicável.",
+  a3: {
+    headline: "Você trabalha o dobro. E a empresa tem o mesmo tamanho.",
+    subheadline:
+      "Esforço nunca foi plano de crescimento. Nesta aula ao vivo, Walter Cincinatto mostra o que realmente move o caixa de um negócio, e por onde começar pra sair da esteira.",
+    cta: "QUERO DESTRAVAR ISSO",
   },
-} as const;
+  a4: {
+    headline: "Você contratou vendedor, investiu em tráfego. E o caixa continua imprevisível.",
+    subheadline:
+      "O problema não é quem vende, é a base que vem antes da venda. Nesta aula ao vivo, Walter mostra os 3 Passos que fazem qualquer vendedor e qualquer lead finalmente renderem.",
+    cta: "QUERO VER OS 3 PASSOS",
+  },
+  a5: {
+    headline: "A venda do seu negócio se decide em 3 passos. E nenhum deles é o primeiro contato.",
+    subheadline:
+      "É por isso que contratar mais gente não resolveu. Nesta aula ao vivo, Walter Cincinatto mostra quais são os 3 Passos e em qual deles a sua venda está vazando.",
+    cta: "QUERO VER OS 3 PASSOS",
+  },
+};
 
 export const transformations = [
-  ["Sei construir qualquer coisa, mas não sei pra quem vender.", "Uma oferta com público, promessa e preço definidos."],
-  ["Cobro por hora e o cliente acha caro.", "Saber empacotar valor em vez de vender tempo."],
-  ["Lancei e ninguém comprou.", "Entender qual das 4 alavancas da oferta estava quebrada."],
-  ["Vender é coisa de picareta.", "Tratar venda como engenharia: com sistema, sem teatro."],
+  ["Hoje você adiciona coisa e cresce o mesmo.", "Depois, a empresa cresce sem você empilhar mais peso."],
+  ["Hoje cada venda é uma tentativa nova.", "Depois, você segue uma ordem que se repete."],
+  ["Hoje a venda mora na sua cabeça.", "Depois, ela vira da empresa e não trava quando você sai."],
+  ["Hoje você fatura e não sobra.", "Depois, você vende construindo valor, não cortando preço."],
 ] as const;
 
 export const discoveries = [
-  ["As 4 alavancas da oferta", "Promessa, público, preço e experiência. Quando uma está quebrada, nada vende. Você vai diagnosticar as suas ao vivo."],
-  ["O mapa dos 3 modelos", "Serviço produtizado, micro-SaaS e app à venda. Qual serve pro seu momento, com prós, contras e exemplos."],
-  ["Precificação sem travar", "Por que você chuta preço baixo, o que ancora valor e o roteiro pra falar o número sem pedir desculpa."],
-  ["A experiência do botão", "Como desenhar o caminho do primeiro contato ao pagamento pra o cliente dizer sim sem atrito."],
-  ["O plano de 30 dias", "Lista dos 10 primeiros alvos, mensagem de abertura, proposta e follow-up. Sem depender de audiência."],
+  "Por que ‘fazer mais’ parou de fazer a sua empresa crescer.",
+  "Os 3 Passos que decidem a venda antes mesmo do primeiro contato com o cliente.",
+  "Por que contratar vendedor e investir em tráfego não resolveu, e o que faltava embaixo.",
+  "Como o cliente decide comprar muito antes de você tentar vender.",
+  "O primeiro movimento pra tirar a venda das suas costas.",
 ] as const;
 
-export const truths = [
-  ["Produto bom não se vende sozinho. Nunca vendeu.", "Você já viu produto pior que o seu faturando mais. Isso não é injustiça, é informação: quem vende é a oferta e a experiência. O produto sustenta a promessa depois que ela foi comprada."],
-  ["Vendas não é dom. É engenharia.", "Tem sistema, processo e caso de teste. Você aprendeu coisas muito mais difíceis. A diferença é que ninguém apresentou venda como estrutura, só como teatro de coach. Aqui não tem teatro."],
-  ["Você não precisa de audiência nem virar influencer.", "Precisa de uma oferta certa pra 10 pessoas certas. Matheus vendeu as primeiras empresas com zero seguidores. Audiência amplifica o que já vende; não conserta o que não vende."],
-  ["Baixar o preço não conserta oferta errada.", "Só te empobrece mais rápido. Quando a oferta está certa, o preço vira consequência. Você vai ver isso acontecer ao vivo na segunda noite."],
+export const foundations = [
+  ["01", "Base", "Crescer não é fazer mais. É instalar a base que faz o ‘mais’ finalmente funcionar."],
+  ["02", "Ordem", "A sua venda trava antes da técnica, não nela."],
+  ["03", "Decisão", "O cliente decide se compra antes de você abrir a boca pra vender."],
+  ["04", "Direção", "Esforço não é plano de crescimento. Mais horas nunca foi estratégia."],
 ] as const;
 
-export const program = [
-  {
-    night: "NOITE 1",
-    title: "O diagnóstico e a virada",
-    blocks: [
-      ["30 min", "Por que produto não vende", "As 4 alavancas e o erro de quem volta pro código. Casos reais das empresas do Matheus."],
-      ["35 min", "Os 3 modelos de monetização", "Serviço produtizado, micro-SaaS e app à venda. O que serve pra CLT, freelancer e builder."],
-      ["35 min", "Anatomia da oferta", "Promessa, público, preço e experiência. Duas ofertas reais desmontadas ao vivo."],
-      ["20 min", "Perguntas ao vivo", "Perguntas e exercício de casa de 20 minutos pra Noite 2."],
-    ],
-  },
-  {
-    night: "NOITE 2",
-    title: "A construção",
-    blocks: [
-      ["40 min", "Montando a sua oferta", "Exercício guiado: defina público, promessa e formato e saia com a oferta esboçada."],
-      ["30 min", "Precificação por valor", "Roteiro pra definir e falar preço — e o que fazer quando pedem desconto."],
-      ["30 min", "O plano de 30 dias", "10 alvos, mensagem, proposta e follow-up. O caminho até a primeira venda."],
-      ["20 min", "Encerramento", "Próximos passos para colocar a oferta no mercado."],
-    ],
-  },
+export const classBlocks = [
+  ["Bloco 1", "Cliente", "Quem realmente compra de você e por quê. É aqui que a maioria das vendas se ganha ou se perde, antes de qualquer contato com o cliente. Você sai sabendo o que estava enxergando errado."],
+  ["Bloco 2", "Valor", "Como fazer o cliente perceber valor antes de você falar de preço. É o que tira a sua empresa da guerra de desconto."],
+  ["Bloco 3", "Processo", "Como organizar a venda numa lógica que se repete, que não dependa de você nem da inspiração da equipe naquele dia."],
+  ["Bloco 4", "A ordem na prática", "Por que a técnica só funciona depois dos 3 Passos, e qual o primeiro movimento pra aplicar já na próxima venda."],
+] as const;
+
+export const gifts = [
+  ["Playbook de Vendas para Serviços", "Um roteiro simples pra saber o que fazer no dia a dia e gerar venda sem depender só de indicação."],
+  ["Playbook de Vendas para Varejo", "Um guia pra organizar atendimento, contato e encantamento do cliente."],
+  ["Exercício de Diagnóstico Comercial", "Pra identificar onde a sua venda está vazando e qual passo precisa vir primeiro."],
+  ["Grupo de WhatsApp", "Pra acompanhar e tirar dúvida no calor da aula."],
+] as const;
+
+export const essentials = [
+  "Porque mais um ano fazendo a mesma coisa é mais um ano no mesmo tamanho.",
+  "Porque caixa que depende de sorte tira a sua paz.",
+  "Porque o seu esforço merece virar crescimento, não só sobrevivência.",
+  "E porque a sua empresa não pode depender de você estar com a corda toda todo santo dia.",
 ] as const;
 
 export const audience = [
-  "Dev CLT que quer criar uma renda própria sem largar o emprego no escuro.",
-  "Freelancer que vende horas e quer empacotar valor.",
-  "Builder com app ou SaaS pronto que ainda não encontrou compradores.",
-  "Profissional de TI, dados, infra, QA ou produto que quer monetizar conhecimento.",
-  "Quem constrói com IA e percebeu que executar ficou fácil — vender, não.",
+  "Pro empresário que trabalha muito e não vê a empresa crescer.",
+  "Pra quem contratou vendedor ou investiu em tráfego e a venda continua dependendo dele.",
+  "Pro dono que fatura bem e não vê sobrar no fim do mês.",
+  "Pra quem vive de indicação e quer previsibilidade.",
+  "Pra quem sabe que precisa de base e processo, mas não sabe por onde começar.",
 ] as const;
 
 export const faqs = [
-  ["Não tenho produto pronto. Serve pra mim?", "Serve. Um dos três caminhos é o serviço produtizado: você pode começar empacotando algo que já sabe fazer, sem construir software antes."],
-  ["Sou CLT. Preciso largar o emprego?", "Não. O plano de 30 dias roda por lista e mensagem direta, em paralelo ao trabalho. A proposta é validar antes de qualquer salto."],
-  ["Isso é curso de marketing digital?", "Não. É processo comercial para quem é técnico: público, promessa, preço, experiência, proposta e follow-up — sem palco e sem personagem."],
-  ["Vai ter gravação?", "Sim. O replay fica disponível por 48 horas para você rever ou recuperar alguma parte."],
-  ["Vou conseguir aplicar sozinho?", "Você não sai só com teoria. Na segunda noite, monta a sua oferta durante um exercício guiado e termina com ela esboçada."],
-  ["Por que está tão barato?", "Porque o Lote 1 recompensa quem decide rápido. Depois, o ingresso sobe para R$ 67 e, nas últimas 48 horas, para R$ 97."],
-  ["E se eu não gostar?", "Você tem 7 dias de garantia. Manda uma mensagem e devolvemos o valor sem interrogatório."],
+  ["Serve pra qualquer tipo de empresa?", "Serve. A lógica dos 3 Passos vale pra quem vende serviço, produto, atendimento ou solução, sozinho ou com equipe."],
+  ["Eu já invisto em tráfego e tenho vendedor. Ainda faz sentido?", "Faz, e é justamente pra você. A aula mostra por que isso não destravou o crescimento e o que faltava na base pra esse investimento render."],
+  ["É só mais uma aula de técnica de vendas?", "Não. O foco é o que vem ANTES da técnica. Sem base, técnica nenhuma sustenta o caixa, e você já sentiu isso na prática."],
+  ["Preciso ter equipe de vendas?", "Não. Funciona pra quem vende sozinho e pra quem quer instalar a base antes de contratar mais alguém."],
+  ["Vou conseguir aplicar com a rotina corrida?", "Sim. A aula foi pensada pra dono ocupado. É clareza simples e um primeiro passo prático, não mais complicação."],
+  ["E se eu entrar e sentir que não é pra mim?", "Você tem 7 dias de garantia. Se não fizer sentido, pede o reembolso dentro do prazo, sem burocracia."],
 ] as const;

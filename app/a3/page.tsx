@@ -1,5 +1,5 @@
-import { SalesPage } from "../milla/SalesPage";
+import { LandingPage } from "../landing/LandingPage";
 
 export default function AngleThreePage() {
-  return <SalesPage angle="a3" />;
+  return <LandingPage hero="a3" />;
 }

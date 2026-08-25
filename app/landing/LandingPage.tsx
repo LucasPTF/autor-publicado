@@ -1,138 +1,225 @@
-"use client";
+import {
+  audience,
+  classBlocks,
+  discoveries,
+  essentials,
+  faqs,
+  foundations,
+  gifts,
+  heroes,
+  transformations,
+  type HeroKey,
+} from "./content";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { audience, discoveries, faqs, profiles, program, transformations, truths, type ProfileKey } from "./content";
+const checkoutUrl = process.env.NEXT_PUBLIC_CHECKOUT_URL || "#inscricao";
 
-const A = "/assets/gpt/final/";
-const story = [
-  ["story-01-build.webp", "Você sabe construir.", "Isso nunca foi o problema."],
-  ["story-02-deploy.webp", "Depois do deploy,", "o produto fica pronto e a página vai pro ar."],
-  ["story-03-silence.webp", "Então vem o silêncio.", "Ou o cliente pergunta o preço e some quando você responde."],
-  ["story-04-refactor.webp", "Aí você volta pro código.", "Refatora, adiciona feature, melhora a arquitetura — e conserta a parte que já funcionava."],
-  ["story-05-offer.webp", "O que faltava era a oferta.", "Promessa, público, preço e experiência. Em 2 noites, você monta a sua."],
-] as const;
-
-function TrackLink({ children, source, className = "cta" }: { children: React.ReactNode; source: string; className?: string }) {
-  const checkout = process.env.NEXT_PUBLIC_CHECKOUT_URL || "#inscricao";
-  return <a className={className} href={checkout} data-source={source}><span>{children}</span><b aria-hidden="true">↗</b></a>;
+function Cta({ children, source, light = false }: { children: React.ReactNode; source: string; light?: boolean }) {
+  return (
+    <a className={`cta${light ? " cta-light" : ""}`} href={checkoutUrl} data-source={source}>
+      <span>{children}</span>
+      <b aria-hidden="true">↗</b>
+    </a>
+  );
 }
 
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <p className="eyebrow"><span aria-hidden="true" />{children}</p>;
+function Label({ number, children }: { number: string; children: React.ReactNode }) {
+  return <p className="section-label"><span>{number}</span>{children}</p>;
 }
 
-export function LandingPage() {
-  const [profile, setProfile] = useState<ProfileKey>("conscienciosidade");
-  const [activeScene, setActiveScene] = useState(0);
-  const [showMobile, setShowMobile] = useState(false);
-  const heroRef = useRef<HTMLElement>(null);
-  const profileCopy = useMemo(() => profiles[profile], [profile]);
-
-  useEffect(() => {
-    const requested = new URLSearchParams(window.location.search).get("perfil") as ProfileKey | null;
-    const profileTimer = requested && requested in profiles ? window.setTimeout(() => setProfile(requested), 0) : undefined;
-
-    const onScroll = () => setShowMobile(window.scrollY > (heroRef.current?.offsetHeight || window.innerHeight) * 0.7);
-    const steps = document.querySelectorAll<HTMLElement>("[data-scene]");
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) setActiveScene(Number((entry.target as HTMLElement).dataset.scene));
-      });
-    }, { rootMargin: "-35% 0px -45%", threshold: 0 });
-    steps.forEach((step) => observer.observe(step));
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { if (profileTimer) window.clearTimeout(profileTimer); observer.disconnect(); window.removeEventListener("scroll", onScroll); };
-  }, []);
-
+export function LandingPage({ hero }: { hero: HeroKey }) {
+  const heroCopy = heroes[hero];
   const eventSchema = {
-    "@context": "https://schema.org", "@type": "EducationEvent",
-    name: "Workshop Código que Vende", eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
-    description: "Duas noites ao vivo para transformar conhecimento técnico em uma oferta com público, promessa, preço e plano de venda.",
-    performer: { "@type": "Person", name: "Matheus Gomes" },
-    offers: { "@type": "Offer", price: "47", priceCurrency: "BRL", availability: "https://schema.org/InStock" },
+    "@context": "https://schema.org",
+    "@type": "EducationEvent",
+    name: "Vendedor Memorável — Aula ao vivo",
+    eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+    description: "Aula ao vivo com Walter Cincinatto sobre os 3 Passos Antes da Venda.",
+    performer: { "@type": "Person", name: "Walter Cincinatto" },
+    offers: { "@type": "Offer", price: "29.90", priceCurrency: "BRL", availability: "https://schema.org/InStock" },
   };
 
-  return <main id="top">
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }} />
+  return (
+    <main id="top">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }} />
 
-    <header className="header">
-      <a className="brand" href="#top"><span>&lt;/&gt;</span><strong>CÓDIGO QUE VENDE</strong></a>
-      <nav aria-label="Navegação principal"><a href="#programa">Programa</a><a href="#matheus">Matheus</a><a href="#faq">FAQ</a></nav>
-      <TrackLink source="header" className="cta small">GARANTIR VAGA · R$ 47</TrackLink>
-    </header>
+      <header className="topbar">
+        <a className="brand" href="#top" aria-label="Vendedor Memorável — início">
+          <span className="brand-mark">V</span>
+          <span><strong>VENDEDOR</strong><small>MEMORÁVEL</small></span>
+        </a>
+        <nav aria-label="Navegação principal">
+          <a href="#metodo">O método</a>
+          <a href="#programa">A aula</a>
+          <a href="#walter">Walter</a>
+        </nav>
+        <Cta source={`header-${hero}`}>GARANTIR VAGA</Cta>
+      </header>
 
-    <section className="hero" ref={heroRef}>
-      <picture className="hero-picture">
-        <source media="(max-width: 720px)" srcSet={`${A}hero-mobile.webp`} />
-        <img src={`${A}hero-desktop.webp`} alt="Matheus Gomes em um estúdio escuro com elementos abstratos de software e oferta" fetchPriority="high" />
-      </picture>
-      <div className="hero-shade" />
-      <div className="container hero-content">
-        <p className="live"><i /> WORKSHOP AO VIVO · 2 NOITES · 120 MIN CADA</p>
-        <h1>{profileCopy.headline}</h1>
-        <p className="hero-sub">{profileCopy.subheadline}</p>
-        <TrackLink source={`hero-${profile}`}>{profileCopy.cta}</TrackLink>
-        <div className="hero-badges">
-          <span>13 empresas construídas e vendidas</span><span>M&amp;A concluído em 2023</span><span>Replay por 48h</span><span>Garantia de 7 dias</span>
+      <section className="hero">
+        <div className="hero-grid" aria-hidden="true" />
+        <div className="hero-orbit orbit-one" aria-hidden="true" />
+        <div className="hero-orbit orbit-two" aria-hidden="true" />
+        <div className="hero-monogram" aria-hidden="true"><span>W</span><span>C</span></div>
+        <div className="shell hero-layout">
+          <div className="hero-copy">
+            <p className="live"><i /> AULA 100% AO VIVO <span>VAGAS LIMITADAS</span></p>
+            <h1>{heroCopy.headline}</h1>
+            <p className="hero-sub">{heroCopy.subheadline}</p>
+            <Cta source={`hero-${hero}`}>{heroCopy.cta}</Cta>
+            <p className="support-line">Aula ao vivo com Walter Cincinatto. Vagas limitadas.</p>
+          </div>
+          <aside className="hero-card" aria-label="Os 3 Passos Antes da Venda">
+            <p>OS 3 PASSOS<br />ANTES DA VENDA</p>
+            <ol><li><span>01</span> Cliente</li><li><span>02</span> Valor</li><li><span>03</span> Processo</li></ol>
+            <small>MÉTODO VENCER</small>
+          </aside>
         </div>
-      </div>
-      <a className="scroll-cue" href="#virada">SCROLL <span>↓</span></a>
-    </section>
+        <div className="shell hero-seals">
+          <span>Começou vendendo na rua</span>
+          <span>Aula 100% ao vivo</span>
+          <span>Garantia de 7 dias</span>
+          <span>Playbooks inclusos</span>
+        </div>
+      </section>
 
-    <section className="proof-bar"><div className="container"><strong>O código entrega.</strong><p>{profileCopy.proof}</p></div></section>
+      <section className="manifesto section-dark">
+        <div className="shell manifesto-grid">
+          <Label number="01">A TRANSFORMAÇÃO</Label>
+          <div>
+            <p className="manifesto-lead">Você não precisa carregar mais peso.<br /><em>Precisa de uma base que sustente o crescimento.</em></p>
+            <div className="transformation-list">
+              {transformations.map(([before, after], index) => (
+                <article key={before}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <p>{before}</p><b aria-hidden="true">→</b><p>{after}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <section className="section transformation" id="virada"><div className="container">
-      <Eyebrow>A VIRADA</Eyebrow><div className="section-head"><h2>O problema não é a sua capacidade de construir. <em>É o que acontece depois.</em></h2><p>Você sai do workshop com as peças que faltavam entre o deploy e a primeira venda.</p></div>
-      <div className="transform-grid">{transformations.map(([before, after], i) => <article key={before}><span>0{i + 1}</span><div><small>VOCÊ SAI DE</small><p>{before}</p></div><b>→</b><div><small>VOCÊ VAI PRA</small><p>{after}</p></div></article>)}</div>
-    </div></section>
+      <section className="discover section-paper">
+        <div className="shell">
+          <Label number="02">O QUE VOCÊ VAI DESCOBRIR</Label>
+          <div className="section-heading">
+            <h2>O que decide a venda acontece <em>antes</em> da técnica.</h2>
+            <p>Você vai enxergar por que o que já tentou não sustentou o caixa e qual é a ordem que vem antes de vender.</p>
+          </div>
+          <div className="discover-grid">
+            {discoveries.map((item, index) => <article key={item}><span>0{index + 1}</span><p>{item}</p></article>)}
+          </div>
+        </div>
+      </section>
 
-    <section className="story" aria-label="Do código à oferta">
-      <div className="story-stage" aria-hidden="true">
-        {story.map(([image], index) => <img key={image} className={index === activeScene ? "active" : ""} src={`${A}${image}`} alt="" loading={index ? "lazy" : "eager"} />)}
-        <div className="story-vignette" />
-      </div>
-      <div className="story-steps container">{story.map(([, title, text], index) => <article data-scene={index} key={title}><span>0{index + 1}</span><h2>{title}</h2><p>{text}</p>{index === 4 && <div className="lever-pills"><b>PROMESSA</b><b>PÚBLICO</b><b>PREÇO</b><b>EXPERIÊNCIA</b></div>}</article>)}</div>
-    </section>
+      <section className="lots-strip" id="lotes">
+        <div className="shell lots-grid">
+          <div><p>1º LOTE <span>ATUAL</span></p><strong>R$ 29,90</strong><small>Aula ao vivo · Playbooks + Diagnóstico · Grupo de WhatsApp</small></div>
+          <div><p>2º LOTE</p><strong>R$ 97,00</strong><small>Entrada após o 1º lote</small></div>
+          <div><p>3º LOTE</p><strong>R$ 197,00</strong><small>Últimas vagas · Lote final</small></div>
+          <Cta source="lotes" light>GARANTIR MINHA VAGA NO 1º LOTE</Cta>
+        </div>
+      </section>
 
-    <section className="section discover"><div className="container">
-      <Eyebrow>O QUE VOCÊ VAI DESCOBRIR</Eyebrow><div className="section-head"><h2>Venda tratada do jeito que dev aprende: <em>estrutura, diagnóstico e execução.</em></h2><p>Sem depender de audiência. Sem virar personagem. Sem esconder o preço atrás de uma call.</p></div>
-      <div className="discover-grid">{discoveries.map(([title, text], i) => <article key={title}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
-    </div></section>
+      <section className="expert section-ink" id="walter">
+        <div className="expert-type" aria-hidden="true">WALTER</div>
+        <div className="shell expert-grid">
+          <div className="expert-signature"><span>WC</span><small>VENDAS<br />NO CORPO.<br />NA PRÁTICA.</small></div>
+          <div>
+            <Label number="03">APRESENTAMOS: WALTER CINCINATTO</Label>
+            <h2>Autoridade de chão.<br /><em>Não de palco.</em></h2>
+            <p>Walter começou vendendo na rua. Aprendeu vendas no corpo, no dia a dia, no olho no olho.</p>
+            <p>Depois empreendeu. Cresceu. E quase quebrou por depender de poucos clientes grandes.</p>
+            <p>Foi ali que veio a virada. Ele saiu da dependência, foi pro varejo e passou a entender como as pessoas realmente compram. Não no discurso bonito, na prática.</p>
+            <p>Daí nasceu o que sustenta o Método VENCER: o que faz uma empresa crescer não é fazer mais. É a base que vem antes da venda.</p>
+            <Cta source="walter">QUERO APRENDER COM O WALTER</Cta>
+          </div>
+        </div>
+      </section>
 
-    <section className="section lots" id="lotes"><div className="container">
-      <div className="section-head light"><h2>O preço sobe. <em>O conteúdo não.</em></h2><p>O Lote 1 existe pra quem reconhece rápido o problema que está travando a venda.</p></div>
-      <div className="lot-grid"><article className="current"><p><i /> ABERTO AGORA</p><span>LOTE 1</span><strong>R$ 47</strong><small>Vagas limitadas</small></article><article><p>PRÓXIMO</p><span>LOTE 2</span><strong>R$ 67</strong><small>Quando o Lote 1 esgotar</small></article><article><p>FINAL</p><span>LOTE 3</span><strong>R$ 97</strong><small>Últimas 48h antes do evento</small></article></div>
-      <TrackLink source="lotes">GARANTIR MINHA VAGA NO LOTE 1</TrackLink>
-    </div></section>
+      <section className="expanded section-paper">
+        <div className="shell narrow-copy">
+          <Label number="04">A TRANSFORMAÇÃO</Label>
+          <h2>Você se mata.<br /><em>Mas esforço não é plano de crescimento.</em></h2>
+          <div className="editorial-copy">
+            <p>Você trabalha mais a cada ano. Chega cedo, sai tarde, resolve tudo.</p>
+            <p>E quando olha pra trás, a empresa tem quase o mesmo tamanho de antes.</p>
+            <p>Não é falta de esforço. Você se mata. O problema é que esforço não é plano de crescimento. Dá pra remar a vida inteira e continuar parado, se o barco está furado.</p>
+            <p>E o furo quase sempre está no mesmo lugar. Na venda.</p>
+            <p>O que faz a empresa crescer de verdade é a venda parar de depender da sorte. Sem isso, todo o resto do seu trabalho não chega no caixa.</p>
+          </div>
+          <blockquote>Em vez de adicionar mais, o Método VENCER instala a base. Primeiro você entende o cliente. Depois constrói valor. Depois organiza o processo. Aí, e só aí, a técnica funciona.</blockquote>
+        </div>
+      </section>
 
-    <section className="section expert" id="matheus"><div className="container expert-layout">
-      <div className="expert-photo"><img src={`${A}expert-authority.webp`} alt="Retrato editorial de Matheus Gomes em ambiente tecnológico" loading="lazy" /><span>13 empresas<br />vendidas</span></div>
-      <div><Eyebrow>QUEM CONDUZ</Eyebrow><h2>Matheus Gomes fala código e venda <em>com a mesma fluência.</em></h2><p>Matheus é programador desde a adolescência. Construiu um grupo de 13 empresas e vendeu todas em 2023, num processo de M&amp;A que fechou um ciclo de mais de uma década.</p><p>No caminho, vendeu apps, sistemas e serviços pra todo tipo de cliente. A lição que ficou não foi técnica: em todas as vendas, do primeiro contrato ao exit final, o que decidiu o jogo foi a oferta, nunca o código.</p><p>Hoje ele ensina exatamente isso, do jeito que dev entende: com processo.</p></div>
-    </div></section>
+      <section className="foundations section-accent" id="metodo">
+        <div className="shell">
+          <Label number="05">O QUE VOCÊ PRECISA ENTENDER PRIMEIRO</Label>
+          <div className="section-heading light-heading"><h2>Quatro verdades que desmontam o jeito antigo de crescer.</h2><p>Quando a base entra, o esforço para de se perder antes de chegar ao caixa.</p></div>
+          <div className="foundation-grid">{foundations.map(([number, title, text]) => <article key={number}><span>{number}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
+        </div>
+      </section>
 
-    <section className="section truths"><div className="container"><Eyebrow>QUATRO VERDADES INCÔMODAS</Eyebrow><div className="truth-list">{truths.map(([title, text], i) => <article key={title}><span>{String(i + 1).padStart(2, "0")}</span><div><h3>{title}</h3><p>{text}</p></div></article>)}</div></div></section>
+      <section className="class-intro section-paper">
+        <div className="shell class-intro-grid">
+          <div><Label number="06">A AULA VENDEDOR MEMORÁVEL</Label><h2>Não é uma lista de técnicas soltas.</h2></div>
+          <div><p>É uma aula ao vivo pro dono de negócio que cansou de empilhar coisa e ver a empresa parada no mesmo lugar.</p><p>Em poucas horas, você entende por que o seu esforço não está virando crescimento e aprende os 3 Passos que vêm antes da venda. A base que faz tudo que você já tem finalmente funcionar.</p><p>É ao vivo, com espaço pra tirar dúvida. Não é aula gravada.</p></div>
+        </div>
+      </section>
 
-    <section className="section method"><div className="method-bg"><img src={`${A}expert-method.webp`} alt="Matheus Gomes analisando um sistema abstrato de quatro módulos" loading="lazy" /></div><div className="container method-content"><div><Eyebrow>O MÉTODO</Eyebrow><h2>Quatro alavancas.<br /><em>Uma oferta.</em></h2><p>Quando uma quebra, todo o sistema perde força.</p></div><div className="lever-grid"><article><span>01</span><h3>Promessa</h3><p>O resultado que o cliente entende e deseja.</p></article><article><span>02</span><h3>Público</h3><p>Quem tem o problema e valoriza a solução.</p></article><article><span>03</span><h3>Preço</h3><p>Valor ancorado no impacto, não nas suas horas.</p></article><article><span>04</span><h3>Experiência</h3><p>O caminho sem atrito entre interesse e pagamento.</p></article></div></div></section>
+      <section className="program section-dark" id="programa">
+        <div className="shell">
+          <Label number="07">DURANTE A AULA AO VIVO</Label>
+          <div className="section-heading light-heading"><h2>Da origem do vazamento ao primeiro movimento prático.</h2><p>Quatro blocos, uma sequência e clareza para aplicar já na próxima venda.</p></div>
+          <div className="program-list">{classBlocks.map(([block, title, text], index) => <article key={block}><span>{block}</span><b>{String(index + 1).padStart(2, "0")}</b><div><h3>{title}</h3><p>{text}</p></div></article>)}</div>
+        </div>
+      </section>
 
-    <section className="section operation"><div className="container"><Eyebrow>COMO FUNCIONA</Eyebrow><div className="section-head"><h2>Intensivo, ao vivo e aplicado <em>à sua oferta.</em></h2><p>São 2 noites online, de 120 minutos cada. Você entra no grupo do WhatsApp, recebe o material e participa com espaço pra perguntas. Perdeu uma parte? O replay fica disponível por 48 horas.</p></div><div className="operation-grid"><article><span>01</span><h3>Entre ao vivo</h3><p>Duas noites, quatro blocos por noite e perguntas no fechamento.</p></article><article><span>02</span><h3>Trabalhe na sua oferta</h3><p>Na segunda noite, você preenche o exercício guiado — não assiste só teoria.</p></article><article><span>03</span><h3>Saia com direção</h3><p>Oferta esboçada e plano de 30 dias pra buscar a primeira venda.</p></article></div></div></section>
+      <section className="gifts section-paper">
+        <div className="shell gifts-grid">
+          <div className="gifts-copy"><Label number="08">PRESENTES EXCLUSIVOS</Label><h2>A aula termina.<br /><em>O material fica.</em></h2><p>Ferramentas simples para continuar organizando a venda depois do encontro ao vivo.</p></div>
+          <div className="gift-list">{gifts.map(([title, text], index) => <article key={title}><span>0{index + 1}</span><div><h3>{title}</h3><p>{text}</p></div><b>INCLUSO</b></article>)}</div>
+        </div>
+      </section>
 
-    <section className="section program" id="programa"><div className="container"><Eyebrow>PROGRAMA COMPLETO</Eyebrow><h2>Duas noites. <em>Do diagnóstico à construção.</em></h2><div className="night-grid">{program.map((night) => <article key={night.night}><header><span>{night.night}</span><h3>{night.title}</h3><b>120 MIN</b></header><div>{night.blocks.map(([time, title, text], i) => <section key={title}><span>{String(i + 1).padStart(2, "0")}</span><div><small>{time}</small><h4>{title}</h4><p>{text}</p></div></section>)}</div></article>)}</div></div></section>
+      <section className="essential section-ink">
+        <div className="shell essential-grid">
+          <div><Label number="09">POR QUE ISSO É ESSENCIAL</Label><h2>O custo de continuar igual não aparece numa linha da planilha.</h2></div>
+          <div className="essential-list">{essentials.map((item, index) => <p key={item}><span>0{index + 1}</span>{item}</p>)}</div>
+        </div>
+        <div className="shell essential-cta"><Cta source="essencial">QUERO PARAR DE EMPILHAR E COMEÇAR A CRESCER</Cta></div>
+      </section>
 
-    <section className="section cost"><div className="container cost-layout"><div><Eyebrow>FAZ A CONTA COMIGO</Eyebrow><h2>Quanto custa continuar polindo <em>o que ninguém compra?</em></h2></div><div><p>Quantos meses o seu produto está pronto e parado? Quantas horas de refactor você investiu depois do lançamento? Agora a pergunta que dói: quantas horas você investiu na oferta dele?</p><p>A IA está deixando todo mundo capaz de construir. Em 2026, código virou commodity. O que sobrou de diferencial é exatamente o que este workshop ensina.</p><strong>Duas noites. R$ 47. O custo de continuar no ciclo é maior.</strong><TrackLink source="custo">QUERO SAIR DO CICLO · GARANTIR VAGA</TrackLink></div></div></section>
+      <section className="audience section-paper">
+        <div className="shell audience-grid">
+          <div><Label number="10">PARA QUEM FAZ SENTIDO</Label><h2>Pra quem cansou de ser o motor e o freio da própria empresa.</h2><p className="not-for"><strong>Não é pra quem</strong> quer fórmula mágica. Nem pra quem quer assistir e não aplicar nada.</p></div>
+          <div className="check-list">{audience.map((item) => <p key={item}><span aria-hidden="true">✓</span>{item}</p>)}</div>
+        </div>
+      </section>
 
-    <section className="section audience"><div className="container"><Eyebrow>É PRA VOCÊ?</Eyebrow><div className="section-head"><h2>Se você sabe construir, <em>mas ainda não sabe vender.</em></h2><p>Não importa se o código veio de anos de estudo ou de uma conversa com IA. O gargalo agora é transformar capacidade em oferta.</p></div><div className="audience-grid">{audience.map((item, i) => <article key={item}><span>0{i + 1}</span><p>{item}</p></article>)}</div></div></section>
+      <section className="difference section-accent">
+        <div className="shell difference-grid">
+          <div><Label number="11">UM DIFERENCIAL ÚNICO</Label><h2>A fundação vem antes do telhado.</h2></div>
+          <div><p>O Método VENCER não começa pelo script, nem manda você fazer mais.</p><p>Começa pela base. São os 3 Passos Antes da Venda: primeiro o cliente, depois o valor, depois o processo. A técnica é a quarta coisa, e é por isso que ela sozinha nunca resolveu o seu caixa.</p><div className="method-order"><span>CLIENTE</span><i>→</i><span>VALOR</span><i>→</i><span>PROCESSO</span><i>→</i><span>TÉCNICA</span></div></div>
+        </div>
+      </section>
 
-    <section className="section difference"><div className="container difference-layout"><div><Eyebrow>A TERCEIRA FIGURA</Eyebrow><h2>Nem guru sem terminal. Nem dev que só vendeu curso.</h2></div><div><p>Quem ensina venda pra dev, em geral, é o guru de marketing que nunca abriu um terminal ou o dev que nunca vendeu nada além de curso.</p><p>Matheus é a terceira figura: o programador que construiu 13 empresas e vendeu todas. Que fala Lambda, WebSocket e fila com a mesma fluência com que fala proposta, margem e contrato.</p><blockquote>“Seu stack não importa pra venda.”</blockquote><p>Neste workshop você aprende o processo comercial de quem sentou na mesa de M&amp;A e ouviu zero perguntas sobre código.</p></div></div></section>
+      <section className="faq section-paper" id="faq">
+        <div className="shell faq-grid">
+          <div><Label number="12">DÚVIDAS FREQUENTES</Label><h2>Antes de garantir a sua vaga.</h2><div className="guarantee-seal"><strong>7</strong><span>DIAS DE<br />GARANTIA</span></div></div>
+          <div className="faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div>
+        </div>
+      </section>
 
-    <section className="section guarantee"><div className="container guarantee-layout"><div className="guarantee-seal"><strong>7</strong><span>DIAS</span></div><div><Eyebrow>RISCO ZERO</Eyebrow><h2>Você entra protegido <em>por uma garantia simples.</em></h2><p>{profileCopy.guarantee}</p></div></div></section>
+      <section className="closing" id="inscricao">
+        <div className="closing-grid" aria-hidden="true" />
+        <div className="shell closing-layout">
+          <div><p className="live"><i /> 1º LOTE ABERTO</p><h2>Chega de empilhar.<br /><em>Comece pela base.</em></h2><p>Você entra, assiste e sente se faz sentido pra você. Se não fizer, pede o reembolso dentro de 7 dias, sem burocracia.</p></div>
+          <div className="price-card"><small>Vendedor Memorável · Aula ao vivo</small><p>1º LOTE</p><div className="price"><span>R$</span><strong>29</strong><sup>,90</sup></div><ul><li>Aula 100% ao vivo</li><li>Playbooks de Vendas</li><li>Diagnóstico Comercial</li><li>Grupo de WhatsApp</li><li>Garantia de 7 dias</li></ul><Cta source={`final-${hero}`} light>QUERO MINHA VAGA NA AULA</Cta></div>
+        </div>
+      </section>
 
-    <section className="section faq" id="faq"><div className="container faq-layout"><div><Eyebrow>FAQ</Eyebrow><h2>Sem dúvida escondida <em>atrás de uma call.</em></h2></div><div>{faqs.map(([question, answer]) => <details key={question}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div></div></section>
-
-    <section className="closing" id="inscricao"><picture><source media="(max-width: 720px)" srcSet={`${A}expert-final-mobile.webp`} /><img src={`${A}expert-final-desktop.webp`} alt="Matheus Gomes em um ambiente gráfico que converge para uma oferta clara" loading="lazy" /></picture><div className="closing-shade" /><div className="container"><Eyebrow>LOTE 1 · R$ 47</Eyebrow><h2>O código já está pronto.<br /><em>Agora construa o que vende.</em></h2><p>2 noites ao vivo. Replay 48h. Garantia de 7 dias. Você sai com a sua oferta esboçada.</p><TrackLink source="final">GARANTIR MINHA VAGA AGORA · LOTE 1 · R$ 47</TrackLink></div></section>
-
-    <footer><div className="container"><a className="brand" href="#top"><span>&lt;/&gt;</span><strong>CÓDIGO QUE VENDE</strong></a><p>Workshop online com Matheus Gomes · © 2026</p></div></footer>
-
-    <div className={`mobile-cta${showMobile ? " visible" : ""}`}><span>LOTE 1<strong>R$ 47</strong></span><TrackLink source="mobile" className="cta small">GARANTIR VAGA</TrackLink></div>
-  </main>;
+      <footer><div className="shell"><a className="brand" href="#top"><span className="brand-mark">V</span><span><strong>VENDEDOR</strong><small>MEMORÁVEL</small></span></a><p>Aula online com Walter Cincinatto · © 2026</p><p>Resultados dependem da aplicação individual do conteúdo.</p></div></footer>
+    </main>
+  );
 }

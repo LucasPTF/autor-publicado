@@ -1,42 +1,28 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import "./globals.css";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const origin = `${protocol}://${host}`;
+const deploymentHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || "localhost:3000";
+const deploymentOrigin = deploymentHost.startsWith("localhost") ? `http://${deploymentHost}` : `https://${deploymentHost}`;
 
-  return {
-    metadataBase: new URL(origin),
-    title: "Ativação SD — Sistema Destrave | Milla Souza",
-    description:
-      "Conheça uma rota de Tráfego Livre com Robô de Leads e IA Funcionária para começar sem depender de anúncios ou conteúdo em massa.",
-    openGraph: {
-      title: "Ativação SD — Sistema Destrave",
-      description: "Uma nova rota para quem já tentou vender no digital e cansou de pagar para testar.",
-      type: "website",
-      locale: "pt_BR",
-      url: origin,
-      images: [{ url: "/milla/og.png", width: 1733, height: 908, alt: "Ativação SD com Milla Souza" }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: "Ativação SD — Sistema Destrave",
-      description: "Tráfego Livre, Robô de Leads e IA Funcionária.",
-      images: ["/milla/og.png"],
-    },
-  };
-}
+export const metadata: Metadata = {
+  metadataBase: new URL(deploymentOrigin),
+  title: "Vendedor Memorável — Aula ao vivo com Walter Cincinatto",
+  description: "Entenda os 3 Passos Antes da Venda e instale a base comercial que vem antes da técnica.",
+  openGraph: {
+    title: "Vendedor Memorável — Aula ao vivo",
+    description: "Os 3 Passos Antes da Venda com Walter Cincinatto.",
+    type: "website",
+    locale: "pt_BR",
+    images: [{ url: "/og.png", width: 1693, height: 947, alt: "Vendedor Memorável — Os 3 Passos Antes da Venda" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vendedor Memorável — Aula ao vivo",
+    description: "Os 3 Passos Antes da Venda com Walter Cincinatto.",
+    images: ["/og.png"],
+  },
+};
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="pt-BR">
-      <head>
-        <link rel="preload" as="image" href="/milla/milla-hero.png" />
-      </head>
-      <body>{children}</body>
-    </html>
-  );
+  return <html lang="pt-BR"><body>{children}</body></html>;
 }
