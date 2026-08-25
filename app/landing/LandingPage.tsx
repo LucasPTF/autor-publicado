@@ -23,8 +23,8 @@ function Cta({ children, source, light = false }: { children: React.ReactNode; s
   );
 }
 
-function Label({ number, children }: { number: string; children: React.ReactNode }) {
-  return <p className="section-label"><span>{number}</span>{children}</p>;
+function Label({ number, children, icon = false }: { number: string; children: React.ReactNode; icon?: boolean }) {
+  return <p className="section-label"><span className={icon ? "label-icon" : undefined}>{number}</span>{children}</p>;
 }
 
 function Brand({ priority = false }: { priority?: boolean }) {
@@ -158,7 +158,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
       <section className="video-story section-paper" aria-labelledby="video-walter-title">
         <div className="shell video-story-grid">
           <div className="video-story-copy">
-            <Label number="PLAY">UMA MENSAGEM DO WALTER</Label>
+            <Label number="▶" icon>UMA MENSAGEM DO WALTER</Label>
             <div className="video-logo-lockup" aria-hidden="true">
               <Image src="/walter/logo-walter.png" alt="" width={160} height={160} sizes="160px" />
             </div>
@@ -179,7 +179,7 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
               <source src="/walter/criativo-walter.mp4" type="video/mp4" />
               Seu navegador não consegue reproduzir este vídeo.
             </video>
-            <figcaption><strong>Walter Cincinatto</strong><span>50 segundos · legendas incorporadas</span></figcaption>
+            <figcaption><strong>Walter Cincinatto</strong></figcaption>
           </figure>
         </div>
       </section>
@@ -259,10 +259,10 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
               <source src="/walter/depoimento-pamela-amorim.mp4" type="video/mp4" />
               Seu navegador não consegue reproduzir este vídeo.
             </video>
-            <figcaption><strong>Pâmela Amorim</strong><span>54 segundos · legendas incorporadas</span></figcaption>
+            <figcaption><strong>Pâmela Amorim</strong></figcaption>
           </figure>
           <div className="testimonial-copy">
-            <Label number="REAL">DEPOIMENTO</Label>
+            <Label number="▶" icon>DEPOIMENTO</Label>
             <p className="testimonial-kicker">UMA EXPERIÊNCIA REAL</p>
             <h2 id="testimonial-title">Ouça quem viveu o processo.</h2>
             <p>Sem resumo e sem promessa inventada: o relato completo de Pâmela está disponível para você assistir antes de tomar sua decisão.</p>
