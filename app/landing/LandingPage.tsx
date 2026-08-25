@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   audience,
   classBlocks,
@@ -56,10 +57,11 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
       </header>
 
       <section className="hero">
+        <div className="hero-photo" aria-hidden="true">
+          <Image src="/walter/walter-hero-v1.webp" alt="" fill priority sizes="100vw" />
+        </div>
+        <div className="hero-photo-shade" aria-hidden="true" />
         <div className="hero-grid" aria-hidden="true" />
-        <div className="hero-orbit orbit-one" aria-hidden="true" />
-        <div className="hero-orbit orbit-two" aria-hidden="true" />
-        <div className="hero-monogram" aria-hidden="true"><span>W</span><span>C</span></div>
         <div className="shell hero-layout">
           <div className="hero-copy">
             <p className="live"><i /> AULA 100% AO VIVO <span>VAGAS LIMITADAS</span></p>
@@ -67,12 +69,12 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
             <p className="hero-sub">{heroCopy.subheadline}</p>
             <Cta source={`hero-${hero}`}>{heroCopy.cta}</Cta>
             <p className="support-line">Aula ao vivo com Walter Cincinatto. Vagas limitadas.</p>
+            <div className="hero-method-strip" aria-label="Os 3 Passos Antes da Venda">
+              <span><b>01</b> Cliente</span>
+              <span><b>02</b> Valor</span>
+              <span><b>03</b> Processo</span>
+            </div>
           </div>
-          <aside className="hero-card" aria-label="Os 3 Passos Antes da Venda">
-            <p>OS 3 PASSOS<br />ANTES DA VENDA</p>
-            <ol><li><span>01</span> Cliente</li><li><span>02</span> Valor</li><li><span>03</span> Processo</li></ol>
-            <small>MÉTODO VENCER</small>
-          </aside>
         </div>
         <div className="shell hero-seals">
           <span>Começou vendendo na rua</span>
@@ -124,7 +126,15 @@ export function LandingPage({ hero }: { hero: HeroKey }) {
       <section className="expert section-ink" id="walter">
         <div className="expert-type" aria-hidden="true">WALTER</div>
         <div className="shell expert-grid">
-          <div className="expert-signature"><span>WC</span><small>VENDAS<br />NO CORPO.<br />NA PRÁTICA.</small></div>
+          <div className="expert-photo">
+            <Image
+              src="/walter/walter-expert-v1.webp"
+              alt="Walter Cincinatto, empreendedor e especialista em vendas"
+              fill
+              sizes="(max-width: 720px) calc(100vw - 36px), 43vw"
+            />
+            <span>VENDAS NO CORPO.<br />NA PRÁTICA.</span>
+          </div>
           <div>
             <Label number="03">APRESENTAMOS: WALTER CINCINATTO</Label>
             <h2>Autoridade de chão.<br /><em>Não de palco.</em></h2>
