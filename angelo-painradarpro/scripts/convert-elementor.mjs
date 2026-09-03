@@ -53,6 +53,25 @@ function appendCss(page, id, css) {
   node.settings._custom_css = `${node.settings._custom_css || ''}\n${css}`;
 }
 
+function applyConversionFixes(page) {
+  for (const node of collectNodes(page.content)) {
+    const s = node.settings || {};
+
+    if (node.widgetType === 'heading' && /1º lote · você aqui/i.test(s.title || '')) {
+      s.custom_css = `${s.custom_css || ''}\nselector{position:static !important;align-self:flex-start;margin:0 0 12px 0 !important;z-index:2;white-space:nowrap;}`;
+    }
+
+    if (
+      node.widgetType === 'softlite_dynamic_card_box' &&
+      String(s.text_1).toLowerCase() === 'garantia' &&
+      String(s.text_2).toLowerCase() === '7 dias'
+    ) {
+      s.custom_css = `${s.custom_css || ''}\nselector .rgtidtom{font-size:26px !important;line-height:1 !important;margin:0 !important;letter-spacing:-.4px !important;}selector .zljo6xfm{font-size:12px !important;line-height:1.2 !important;margin-top:8px !important;}`;
+    }
+  }
+  return page;
+}
+
 function makeThankYou(source) {
   const page = clone(source);
   page.title = 'PainRadarPro — Obrigado';
@@ -199,8 +218,9 @@ function layoutRules(node, suffix = '') {
   const margin = boxValue(get(node.widgetType ? '_margin' : 'margin'));
   const width = cssUnit(get(node.widgetType ? '_element_custom_width' : 'width'));
   const minHeight = cssUnit(get('min_height'));
-  const radius = boxValue(get('border_radius'));
-  const borderWidth = boxValue(get('border_width'));
+  const wrapperPrefix = node.widgetType ? '_' : '';
+  const radius = boxValue(get(`${wrapperPrefix}border_radius`));
+  const borderWidth = boxValue(get(`${wrapperPrefix}border_width`));
   const gap = get('flex_gap');
 
   if (!suffix && node.elType === 'container') rules.push('display:flex');
@@ -208,7 +228,7 @@ function layoutRules(node, suffix = '') {
   if (margin) rules.push(`margin:${margin}`);
   if (width) rules.push(`width:${width}`);
   if (minHeight) rules.push(`min-height:${minHeight}`);
-  if (get('background_color')) rules.push(`background-color:${get('background_color')}`);
+  if (get(`${wrapperPrefix}background_color`)) rules.push(`background-color:${get(`${wrapperPrefix}background_color`)}`);
   if (get('background_image')?.url) rules.push(`background-image:url("${escapeAttr(get('background_image').url)}")`);
   if (get('flex_direction')) rules.push(`flex-direction:${get('flex_direction')}`);
   if (get('flex_justify_content')) rules.push(`justify-content:${get('flex_justify_content')}`);
@@ -216,9 +236,9 @@ function layoutRules(node, suffix = '') {
   if (get('flex_wrap') && get('flex_wrap') !== 'initial') rules.push(`flex-wrap:${get('flex_wrap')}`);
   if (gap?.row) rules.push(`row-gap:${gap.row}${gap.unit || 'px'}`);
   if (gap?.column) rules.push(`column-gap:${gap.column}${gap.unit || 'px'}`);
-  if (get('z_index') !== undefined) rules.push(`z-index:${get('z_index')}`);
-  if (get('border_border')) rules.push(`border-style:${get('border_border')}`);
-  if (get('border_color')) rules.push(`border-color:${get('border_color')}`);
+  if (get(`${wrapperPrefix}z_index`) !== undefined) rules.push(`z-index:${get(`${wrapperPrefix}z_index`)}`);
+  if (get(`${wrapperPrefix}border_border`)) rules.push(`border-style:${get(`${wrapperPrefix}border_border`)}`);
+  if (get(`${wrapperPrefix}border_color`)) rules.push(`border-color:${get(`${wrapperPrefix}border_color`)}`);
   if (borderWidth) rules.push(`border-width:${borderWidth}`);
   if (radius) rules.push(`border-radius:${radius}`);
   if (get('align')) rules.push(`text-align:${get('align')}`);
@@ -268,6 +288,9 @@ function layoutRules(node, suffix = '') {
     }
     const buttonSelector = `${base} .softlite-dynamic-card-box-button`;
     if (get('button_text_color')) blocks.push(`${buttonSelector}{color:${get('button_text_color')}}`);
+    if (get('button_background_color')) {
+      blocks.push(`${buttonSelector}{background-color:${get('button_background_color')}}`);
+    }
     blocks.push(typography(s, 'button_text_typography_', buttonSelector, suffix));
   }
 
@@ -285,6 +308,9 @@ function renderDynamic(node) {
       const src = localizeAsset(s.selected_icon_image?.url || s.selected_icon_image_external_url || '');
       if (src) icon = `<img src="${escapeAttr(src)}" alt="" class="${escapeAttr(s.selected_icon_image_class || 'softlite-dynamic-icon')}" loading="lazy">`;
     }
+  }
+  if (icon.includes('placeholder-1.png') && (s.dynamic_template || '').includes('<footer')) {
+    icon = '<span class="painradar-wordmark" aria-label="PainRadarPro"><span>Pain</span>Radar<span>Pro</span></span>';
   }
 
   let html = s.dynamic_template || '';
@@ -325,7 +351,7 @@ function renderNode(node) {
   let content = '';
   switch (node.widgetType) {
     case 'heading': {
-      const tag = /^h[1-6]$/.test(s.header_size || '') ? s.header_size : 'h2';
+      const tag = /^(h[1-6]|div|span|p)$/.test(s.header_size || '') ? s.header_size : 'h2';
       content = `<${tag} class="elementor-heading-title">${s.title || ''}</${tag}>`;
       break;
     }
@@ -379,10 +405,13 @@ h1,h2,h3,h4,h5,h6,p{margin-top:0}
 .elementor-button{display:inline-flex;align-items:center;justify-content:center;border:0}
 .elementor-button-content-wrapper{display:flex;align-items:center;justify-content:center}
 .softlite-dynamic-card-box{box-sizing:border-box}
+.softlite-dynamic-card-box-button{margin:0;border:0;background:transparent;color:inherit}
+.painradar-wordmark{display:inline-block;font:800 22px/1 Manrope,Inter,system-ui,sans-serif;letter-spacing:-.5px;color:#f8fafc}
+.painradar-wordmark span{color:#38bdf8}
 `;
   const generated = nodes.map((node) => layoutRules(node)).join('\n');
   const custom = nodes
-    .map((node) => (node.settings?._custom_css || '').replace(/\bselector\b/g, `.elementor-element-${node.id}`))
+    .map((node) => `${node.settings?._custom_css || ''}\n${node.settings?.custom_css || ''}`.replace(/\bselector\b/g, `.elementor-element-${node.id}`))
     .join('\n');
   const tablet = nodes.map((node) => layoutRules(node, '_tablet')).filter(Boolean).join('\n');
   const mobile = nodes.map((node) => layoutRules(node, '_mobile')).filter(Boolean).join('\n');
@@ -415,6 +444,8 @@ function writePage(route, page, description) {
 const pages = Object.fromEntries(
   Object.entries(sources).map(([key, file]) => [key, JSON.parse(fs.readFileSync(file, 'utf8'))]),
 );
+
+Object.values(pages).forEach(applyConversionFixes);
 
 writePage('a1', pages.a1, 'PainRadarPro — descubra o que vender com sinais reais do mercado.');
 writePage('a2', pages.a2, 'PainRadarPro — encontre dores que o mercado já está revelando.');

@@ -29,6 +29,11 @@ for (const route of ['a1', 'a2', 'a3']) {
   const html = fs.readFileSync(path.join(root, route, 'index.html'), 'utf8');
   if (!html.includes('/assets/angelo-hero.png')) failures.push(`/${route}/: foto do hero ausente`);
   if (!html.includes('/assets/angelo-apresentacao.png')) failures.push(`/${route}/: foto da apresentação ausente`);
+  if (!html.includes('painradar-wordmark')) failures.push(`/${route}/: marca do rodapé ausente`);
+  if (html.includes('<img src="https://eltonitokazu.com/wp-content/uploads/2026/06/placeholder-1.png"')) {
+    failures.push(`/${route}/: placeholder de imagem ainda presente`);
+  }
+  if (!html.includes('background-color:#00000000')) failures.push(`/${route}/: fundo transparente do FAQ ausente`);
 }
 
 const thanks = fs.readFileSync(path.join(root, 'obrigado', 'index.html'), 'utf8');
