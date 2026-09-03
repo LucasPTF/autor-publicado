@@ -8,6 +8,19 @@ const sources = {
   a3: 'C:/Users/Lucas/Downloads/229) Angelo A3.json',
 };
 
+const localAssets = new Map([
+  [
+    'https://eltonitokazu.com/wp-content/uploads/2026/07/ChatGPT-Image-7_07_2026-16_37_02.png',
+    '/assets/angelo-hero.png',
+  ],
+  [
+    'https://eltonitokazu.com/wp-content/uploads/2026/07/Eufoto-03.png',
+    '/assets/angelo-apresentacao.png',
+  ],
+]);
+
+const localizeAsset = (url = '') => localAssets.get(url) || url;
+
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const escapeAttr = (value = '') =>
   String(value)
@@ -269,7 +282,7 @@ function renderDynamic(node) {
   if (s.selected_icon_enable) {
     if (s.selected_icon_source === 'svg') icon = s.selected_icon_svg || '';
     else {
-      const src = s.selected_icon_image_external_url || s.selected_icon_image?.url || '';
+      const src = localizeAsset(s.selected_icon_image?.url || s.selected_icon_image_external_url || '');
       if (src) icon = `<img src="${escapeAttr(src)}" alt="" class="${escapeAttr(s.selected_icon_image_class || 'softlite-dynamic-icon')}" loading="lazy">`;
     }
   }
@@ -329,7 +342,7 @@ function renderNode(node) {
       content = renderDynamic(node);
       break;
     case 'softlite_image': {
-      const src = s.image_external_url || s.image?.url || '';
+      const src = localizeAsset(s.image?.url || s.image_external_url || '');
       content = `<img src="${escapeAttr(src)}" alt="" class="softlite-image" loading="eager">`;
       break;
     }

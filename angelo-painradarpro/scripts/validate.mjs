@@ -20,6 +20,17 @@ for (const route of routes) {
   if (html.includes('{{') || html.includes('{%')) failures.push(`${label}: token de template não processado`);
 }
 
+for (const asset of ['assets/angelo-hero.png', 'assets/angelo-apresentacao.png']) {
+  const file = path.join(root, asset);
+  if (!fs.existsSync(file) || fs.statSync(file).size < 100_000) failures.push(`${asset}: imagem ausente ou inválida`);
+}
+
+for (const route of ['a1', 'a2', 'a3']) {
+  const html = fs.readFileSync(path.join(root, route, 'index.html'), 'utf8');
+  if (!html.includes('/assets/angelo-hero.png')) failures.push(`/${route}/: foto do hero ausente`);
+  if (!html.includes('/assets/angelo-apresentacao.png')) failures.push(`/${route}/: foto da apresentação ausente`);
+}
+
 const thanks = fs.readFileSync(path.join(root, 'obrigado', 'index.html'), 'utf8');
 if (!thanks.includes('Seu acesso está confirmado.')) failures.push('/obrigado/: confirmação ausente');
 if (thanks.includes('elementor-element-4de6ada6') || thanks.includes('elementor-element-3024fa50')) {
