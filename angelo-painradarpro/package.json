@@ -1,0 +1,10 @@
+{
+  "name": "angelo-painradarpro-html",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "convert": "node scripts/convert-elementor.mjs",
+    "build": "node scripts/validate.mjs"
+  }
+}
