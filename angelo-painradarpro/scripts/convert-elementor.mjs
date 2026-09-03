@@ -8,6 +8,9 @@ const sources = {
   a3: 'C:/Users/Lucas/Downloads/229) Angelo A3.json',
 };
 
+const META_PIXEL_ID = '1528452632263759';
+const CHECKOUT_URL = 'https://pay.hotmart.com/Y106158547L';
+
 const localAssets = new Map([
   [
     'https://eltonitokazu.com/wp-content/uploads/2026/07/ChatGPT-Image-7_07_2026-16_37_02.png',
@@ -67,6 +70,15 @@ function applyConversionFixes(page) {
       String(s.text_2).toLowerCase() === '7 dias'
     ) {
       s.custom_css = `${s.custom_css || ''}\nselector .rgtidtom{font-size:26px !important;line-height:1 !important;margin:0 !important;letter-spacing:-.4px !important;}selector .zljo6xfm{font-size:12px !important;line-height:1.2 !important;margin-top:8px !important;}`;
+    }
+  }
+  return page;
+}
+
+function applyMarketingSetup(page) {
+  for (const node of collectNodes(page.content)) {
+    if (node.settings?.link?.url === '#oferta') {
+      node.settings.link = { ...node.settings.link, url: CHECKOUT_URL, is_external: 'yes' };
     }
   }
   return page;
@@ -418,7 +430,50 @@ h1,h2,h3,h4,h5,h6,p{margin-top:0}
   return `${base}\n${generated}\n${custom}\n@media(max-width:1024px){${tablet}}\n@media(max-width:767px){${mobile}}`;
 }
 
-function renderPage(page, description) {
+function metaPixelCode(trackPurchase) {
+  const purchaseCode = trackPurchase
+    ? `
+  var purchaseKey = 'painradar-purchase-sent';
+  if (!sessionStorage.getItem(purchaseKey)) {
+    var eventId = 'purchase_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    fbq('track', 'Purchase', { currency: 'BRL', value: 97.00 }, { eventID: eventId });
+    sessionStorage.setItem(purchaseKey, '1');
+
+    function readCookie(name) {
+      var prefix = name + '=';
+      var rows = document.cookie ? document.cookie.split('; ') : [];
+      for (var i = 0; i < rows.length; i += 1) {
+        if (rows[i].indexOf(prefix) === 0) return decodeURIComponent(rows[i].slice(prefix.length));
+      }
+      return '';
+    }
+
+    fetch('/api/meta-purchase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+      body: JSON.stringify({
+        eventId: eventId,
+        eventSourceUrl: window.location.href,
+        fbp: readCookie('_fbp'),
+        fbc: readCookie('_fbc')
+      })
+    }).catch(function () {});
+  }`
+    : '';
+
+  return `<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${META_PIXEL_ID}');
+fbq('track', 'PageView');${purchaseCode}
+</script>`;
+}
+
+function renderPage(page, description, trackPurchase = false) {
   const title = page.title || 'PainRadarPro';
   return `<!doctype html>
 <html lang="pt-BR">
@@ -427,30 +482,32 @@ function renderPage(page, description) {
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${escapeAttr(title)}</title>
   <meta name="description" content="${escapeAttr(description)}">
+  ${metaPixelCode(trackPurchase)}
   <style>${renderCss(page)}</style>
 </head>
 <body>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1" alt=""></noscript>
   <main>${page.content.map(renderNode).join('')}</main>
 </body>
 </html>\n`;
 }
 
-function writePage(route, page, description) {
+function writePage(route, page, description, trackPurchase = false) {
   const dir = path.join(projectDir, route);
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, 'index.html'), renderPage(page, description), 'utf8');
+  fs.writeFileSync(path.join(dir, 'index.html'), renderPage(page, description, trackPurchase), 'utf8');
 }
 
 const pages = Object.fromEntries(
   Object.entries(sources).map(([key, file]) => [key, JSON.parse(fs.readFileSync(file, 'utf8'))]),
 );
 
-Object.values(pages).forEach(applyConversionFixes);
+Object.values(pages).forEach((page) => applyMarketingSetup(applyConversionFixes(page)));
 
 writePage('a1', pages.a1, 'PainRadarPro — descubra o que vender com sinais reais do mercado.');
 writePage('a2', pages.a2, 'PainRadarPro — encontre dores que o mercado já está revelando.');
 writePage('a3', pages.a3, 'PainRadarPro — transforme comentários em produto, ticket e copy inicial.');
-writePage('obrigado', makeThankYou(pages.a1), 'Compra confirmada. Veja os próximos passos para acessar o PainRadarPro.');
+writePage('obrigado', makeThankYou(pages.a1), 'Compra confirmada. Veja os próximos passos para acessar o PainRadarPro.', true);
 fs.copyFileSync(path.join(projectDir, 'a1', 'index.html'), path.join(projectDir, 'index.html'));
 
 console.log('Páginas HTML geradas: /, /a1/, /a2/, /a3/ e /obrigado/.');

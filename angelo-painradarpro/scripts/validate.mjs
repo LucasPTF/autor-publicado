@@ -34,6 +34,8 @@ for (const route of ['a1', 'a2', 'a3']) {
     failures.push(`/${route}/: placeholder de imagem ainda presente`);
   }
   if (!html.includes('background-color:#00000000')) failures.push(`/${route}/: fundo transparente do FAQ ausente`);
+  if (!html.includes('https://pay.hotmart.com/Y106158547L')) failures.push(`/${route}/: checkout da Hotmart ausente`);
+  if (!html.includes("fbq('track', 'PageView')")) failures.push(`/${route}/: PageView do Meta Pixel ausente`);
 }
 
 const thanks = fs.readFileSync(path.join(root, 'obrigado', 'index.html'), 'utf8');
@@ -42,6 +44,9 @@ if (thanks.includes('elementor-element-4de6ada6') || thanks.includes('elementor-
   failures.push('/obrigado/: imagem lateral ainda presente');
 }
 if (!thanks.includes('#proximos-passos')) failures.push('/obrigado/: âncora de próximos passos ausente');
+if (!thanks.includes("fbq('track', 'Purchase'")) failures.push('/obrigado/: evento Purchase ausente');
+if (!thanks.includes("currency: 'BRL', value: 97.00")) failures.push('/obrigado/: valor da compra incorreto');
+if (/grupo/i.test(thanks)) failures.push('/obrigado/: referência a grupo ainda presente');
 
 if (failures.length) {
   console.error(failures.join('\n'));
